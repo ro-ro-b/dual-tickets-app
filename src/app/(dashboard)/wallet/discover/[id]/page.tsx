@@ -1,236 +1,237 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { demoEvents, demoTickets } from '@/lib/demo-data';
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { EventTypeBadge, EventStatusBadge } from '@/components/ui/StatusBadge';
-import { formatDate, formatTime, formatCurrency, tierAvailability, getEventTypeColor } from '@/lib/utils';
-import { Calendar, MapPin, Users, Clock, Shield, ArrowRightLeft, Check, Ticket } from 'lucide-react';
+import Link from 'next/link';
+import { demoEvents } from '@/lib/demo-data';
+import { formatDate, formatTime, formatCurrency, tierAvailability } from '@/lib/utils';
 import { useState } from 'react';
 
 export default function EventDetailPage() {
   const { id } = useParams();
-  const event = demoEvents.find(e => e.id === id);
+  const event = demoEvents.find((e) => e.id === id);
+  const [quantity, setQuantity] = useState(1);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
-  const [purchased, setPurchased] = useState(false);
 
   if (!event) {
-    return <div className="text-center py-12"><p className="text-gray-500">Event not found</p></div>;
+    return (
+      <div className="pb-32 bg-slate-950 min-h-screen flex items-center justify-center">
+        <p className="text-slate-400">Event not found</p>
+      </div>
+    );
   }
 
-  const totalSold = event.tiers.reduce((s, t) => s + t.sold, 0);
-  const totalCapacity = event.tiers.reduce((s, t) => s + t.capacity, 0);
-  const revenue = event.tiers.reduce((s, t) => s + (t.sold * t.price), 0);
-
-  const handlePurchase = () => {
-    setPurchased(true);
-    setTimeout(() => setPurchased(false), 3000);
-  };
+  const selectedTierData = event.tiers.find((t) => t.id === selectedTier);
+  const totalPrice = selectedTierData ? selectedTierData.price * quantity : 0;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden h-64 md:h-80">
+    <div className="pb-40 bg-slate-950 min-h-screen">
+      {/* Hero Image */}
+      <div className="relative h-72 bg-slate-800 overflow-hidden">
         <img
           src={event.imageUrl}
           alt={event.name}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="flex gap-2 mb-2">
-            <EventTypeBadge type={event.type} />
-            <EventStatusBadge status={event.status} />
-            {event.resaleEnabled && (
-              <Badge className="bg-white/20 text-white border border-white/30">
-                <ArrowRightLeft size={12} className="mr-1" /> Resale Enabled
-              </Badge>
-            )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+        {/* Back and action buttons */}
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+          <Link
+            href="/wallet/discover"
+            className="p-2 rounded-full bg-slate-900/80 backdrop-blur hover:bg-slate-800 text-white transition-colors"
+          >
+            <span className="material-symbols-outlined">arrow_back</span>
+          </Link>
+          <div className="flex gap-2">
+            <button className="p-2 rounded-full bg-slate-900/80 backdrop-blur hover:bg-slate-800 text-white transition-colors">
+              <span className="material-symbols-outlined">favorite</span>
+            </button>
+            <button className="p-2 rounded-full bg-slate-900/80 backdrop-blur hover:bg-slate-800 text-white transition-colors">
+              <span className="material-symbols-outlined">share</span>
+            </button>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">{event.name}</h1>
+        </div>
+
+        {/* Event type badge */}
+        <div className="absolute bottom-4 left-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-bold uppercase tracking-wider">
+            {event.type === 'concert'
+              ? 'Live Music'
+              : event.type === 'festival'
+                ? 'Festival'
+                : event.type === 'sport'
+                  ? 'Sports'
+                  : event.type === 'conference'
+                    ? 'Conference'
+                    : 'Experience'}
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Details */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Info cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card>
-              <CardContent className="text-center py-3">
-                <Calendar size={18} className="mx-auto text-brand-600 mb-1" />
-                <p className="text-xs text-gray-500">Date</p>
-                <p className="text-sm font-semibold text-gray-900">{formatDate(event.date.start)}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="text-center py-3">
-                <Clock size={18} className="mx-auto text-brand-600 mb-1" />
-                <p className="text-xs text-gray-500">Doors</p>
-                <p className="text-sm font-semibold text-gray-900">{event.date.doors ? formatTime(event.date.doors) : 'TBA'}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="text-center py-3">
-                <MapPin size={18} className="mx-auto text-brand-600 mb-1" />
-                <p className="text-xs text-gray-500">Venue</p>
-                <p className="text-sm font-semibold text-gray-900 line-clamp-1">{event.venue.name}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="text-center py-3">
-                <Users size={18} className="mx-auto text-brand-600 mb-1" />
-                <p className="text-xs text-gray-500">Attendance</p>
-                <p className="text-sm font-semibold text-gray-900">{totalSold.toLocaleString()}</p>
-              </CardContent>
-            </Card>
+      {/* Content */}
+      <div className="px-4 space-y-4 pt-4">
+        {/* Event name */}
+        <h1 className="text-3xl font-black text-white">{event.name}</h1>
+
+        {/* Location and date */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-slate-300">
+            <span className="material-symbols-outlined text-lg">location_on</span>
+            <span className="text-sm">{event.venue.name}</span>
           </div>
-
-          {/* Description */}
-          <Card>
-            <CardHeader><h2 className="font-semibold text-gray-900">About</h2></CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 leading-relaxed">{event.description}</p>
-            </CardContent>
-          </Card>
-
-          {/* Venue info */}
-          <Card>
-            <CardHeader><h2 className="font-semibold text-gray-900">Venue</h2></CardHeader>
-            <CardContent>
-              <p className="font-medium text-gray-900">{event.venue.name}</p>
-              <p className="text-sm text-gray-500">{event.venue.address}</p>
-              <p className="text-sm text-gray-500">{event.venue.city}, {event.venue.country}</p>
-              <p className="text-sm text-gray-400 mt-2">Capacity: {event.venue.capacity.toLocaleString()}</p>
-            </CardContent>
-          </Card>
-
-          {/* DUAL token info */}
-          <Card>
-            <CardHeader><h2 className="font-semibold text-gray-900">DUAL Tokenisation</h2></CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start gap-3">
-                <Shield size={16} className="text-brand-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Every ticket is a unique on-chain token</p>
-                  <p className="text-xs text-gray-500">Cryptographically verified, impossible to counterfeit</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <ArrowRightLeft size={16} className="text-brand-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {event.resaleEnabled
-                      ? `Resale enabled — max ${((event.resaleMaxMarkup - 1) * 100).toFixed(0)}% markup`
-                      : 'Resale disabled for this event'}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {event.resaleEnabled
-                      ? 'Transfer and resell with built-in price caps to prevent scalping'
-                      : 'Tickets are non-transferable'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Ticket size={16} className="text-brand-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Template: {event.type === 'experience' ? 'dual-tickets::experience-ticket::v1' : 'dual-tickets::event-ticket::v1'}</p>
-                  <p className="text-xs text-gray-500 font-mono">Org: {event.organizerId}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center gap-2 text-slate-300">
+            <span className="material-symbols-outlined text-lg">calendar_today</span>
+            <span className="text-sm">{formatDate(event.date.start)}</span>
+          </div>
         </div>
 
-        {/* Right: Tiers + Purchase */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader><h2 className="font-semibold text-gray-900">Select Tier</h2></CardHeader>
-            <CardContent className="space-y-3">
-              {event.tiers.map((tier) => {
-                const avail = tierAvailability(tier.sold, tier.capacity);
-                const isSoldOut = tier.sold >= tier.capacity;
-                const isSelected = selectedTier === tier.id;
+        {/* Price and availability pills */}
+        <div className="flex gap-2 flex-wrap">
+          <div className="px-3 py-1 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-semibold">
+            FROM {formatCurrency(Math.min(...event.tiers.map((t) => t.price)))}
+          </div>
+          {event.status === 'sold-out' ? (
+            <div className="px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-300 text-xs font-semibold">
+              SOLD OUT
+            </div>
+          ) : (
+            <div className="px-3 py-1 rounded-full bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+              ON SALE
+            </div>
+          )}
+        </div>
 
-                return (
-                  <button
-                    key={tier.id}
-                    onClick={() => !isSoldOut && setSelectedTier(tier.id)}
-                    disabled={isSoldOut || event.status !== 'on-sale'}
-                    className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                      isSelected
-                        ? 'border-brand-500 bg-brand-50'
-                        : isSoldOut
-                          ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
-                          : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium text-sm text-gray-900">{tier.name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{tier.description}</p>
-                      </div>
-                      <p className="font-bold text-brand-600">{formatCurrency(tier.price)}</p>
-                    </div>
+        {/* Tabs (simplified) */}
+        <div className="flex gap-6 border-b border-slate-800 pt-4">
+          <button className="pb-3 text-white font-semibold border-b-2 border-blue-600">Details</button>
+          <button className="pb-3 text-slate-400 hover:text-slate-300 transition-colors">Venue</button>
+          <button className="pb-3 text-slate-400 hover:text-slate-300 transition-colors">Reviews</button>
+        </div>
 
-                    {/* Capacity bar */}
-                    <div className="mt-2">
-                      <div className="flex justify-between text-[10px] mb-1">
-                        <span className={avail.color}>{avail.label}</span>
-                        <span className="text-gray-400">{tier.capacity - tier.sold} left</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-1.5">
-                        <div
-                          className={`h-1.5 rounded-full transition-all ${avail.percent >= 80 ? 'bg-red-500' : avail.percent >= 50 ? 'bg-amber-500' : 'bg-green-500'}`}
-                          style={{ width: `${Math.min(avail.percent, 100)}%` }}
-                        />
-                      </div>
-                    </div>
+        {/* Description */}
+        <div>
+          <h2 className="text-white font-black text-lg mb-2">About This Event</h2>
+          <p className="text-slate-300 text-sm leading-relaxed">{event.description}</p>
+        </div>
 
-                    {/* Perks */}
-                    {tier.perks.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {tier.perks.map((perk) => (
-                          <span key={perk} className="inline-flex items-center gap-0.5 text-[10px] text-gray-500">
-                            <Check size={10} className="text-green-500" /> {perk}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+        {/* Venue details */}
+        <div>
+          <h2 className="text-white font-black text-lg mb-2">Venue</h2>
+          <div className="bg-slate-800/30 rounded-lg p-3 space-y-1 text-sm">
+            <p className="font-semibold text-white">{event.venue.name}</p>
+            <p className="text-slate-400">{event.venue.address}</p>
+            <p className="text-slate-400">{event.venue.city}, {event.venue.country}</p>
+            <p className="text-slate-500 text-xs pt-2">Capacity: {event.venue.capacity.toLocaleString()}</p>
+          </div>
+        </div>
 
-              {/* Purchase button */}
-              {event.status === 'on-sale' && (
-                <Button
-                  className="w-full mt-2"
-                  size="lg"
-                  disabled={!selectedTier || purchased}
-                  onClick={handlePurchase}
+        {/* Tiers/Tickets */}
+        <div>
+          <h2 className="text-white font-black text-lg mb-3">Choose Your Tier</h2>
+          <div className="space-y-2">
+            {event.tiers.map((tier) => {
+              const avail = tierAvailability(tier.sold, tier.capacity);
+              const isSoldOut = tier.sold >= tier.capacity;
+              const isSelected = selectedTier === tier.id;
+
+              return (
+                <button
+                  key={tier.id}
+                  onClick={() => !isSoldOut && setSelectedTier(tier.id)}
+                  disabled={isSoldOut || event.status !== 'on-sale'}
+                  className={`w-full text-left p-3 rounded-lg border transition-all ${
+                    isSelected
+                      ? 'border-blue-500 bg-blue-600/10'
+                      : isSoldOut
+                        ? 'border-slate-700 bg-slate-900/50 opacity-50 cursor-not-allowed'
+                        : 'border-slate-700 hover:border-slate-600 hover:bg-slate-800/30'
+                  }`}
                 >
-                  {purchased ? (
-                    <span className="flex items-center gap-2"><Check size={18} /> Ticket Purchased!</span>
-                  ) : selectedTier ? (
-                    `Purchase for ${formatCurrency(event.tiers.find(t => t.id === selectedTier)?.price || 0)}`
-                  ) : (
-                    'Select a tier'
-                  )}
-                </Button>
-              )}
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="font-black text-white text-sm">{tier.name}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{tier.description}</p>
+                    </div>
+                    <p className="font-black text-blue-400 text-lg">{formatCurrency(tier.price)}</p>
+                  </div>
 
-              {event.status === 'sold-out' && (
-                <div className="text-center py-2">
-                  <p className="text-sm font-medium text-red-600">Sold Out</p>
-                  <p className="text-xs text-gray-500 mt-1">Check the marketplace for resale tickets</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  {/* Availability bar */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[11px]">
+                      <span className={avail.color}>{avail.label}</span>
+                      <span className="text-slate-500">{tier.capacity - tier.sold} left</span>
+                    </div>
+                    <div className="w-full bg-slate-700 rounded-full h-1.5">
+                      <div
+                        className={`h-1.5 rounded-full transition-all ${
+                          avail.percent >= 80
+                            ? 'bg-red-500'
+                            : avail.percent >= 50
+                              ? 'bg-yellow-500'
+                              : 'bg-emerald-500'
+                        }`}
+                        style={{ width: `${Math.min(avail.percent, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Perks */}
+                  {tier.perks.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {tier.perks.slice(0, 2).map((perk) => (
+                        <span key={perk} className="text-[10px] text-emerald-400 bg-emerald-600/20 px-2 py-0.5 rounded">
+                          {perk}
+                        </span>
+                      ))}
+                      {tier.perks.length > 2 && (
+                        <span className="text-[10px] text-slate-500">+{tier.perks.length - 2} more</span>
+                      )}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Accessibility info */}
+        <div className="bg-slate-800/30 rounded-lg p-3 flex gap-2 text-sm">
+          <span className="material-symbols-outlined text-blue-400 flex-shrink-0">info</span>
+          <div>
+            <p className="text-slate-300">Accessible seating available. Contact venue for details.</p>
+          </div>
         </div>
       </div>
+
+      {/* Sticky bottom bar */}
+      {selectedTier && (
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 max-w-[448px] mx-auto">
+          {/* Quantity selector */}
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-slate-300 text-sm">Quantity</span>
+            <div className="flex items-center gap-2 bg-slate-800 rounded-lg">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="px-3 py-1 text-slate-400 hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">remove</span>
+              </button>
+              <span className="px-4 text-white font-bold w-12 text-center">{quantity}</span>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="px-3 py-1 text-slate-400 hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">add</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Buy button */}
+          <button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-black py-3 rounded-lg transition-all active:scale-95">
+            Buy Tickets · {formatCurrency(totalPrice)}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

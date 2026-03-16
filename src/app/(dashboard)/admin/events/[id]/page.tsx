@@ -2,8 +2,6 @@
 
 import { useParams } from 'next/navigation';
 import { demoEvents, demoTickets } from '@/lib/demo-data';
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-import { EventStatusBadge, EventTypeBadge, TicketStatusBadge, OnChainBadge } from '@/components/ui/StatusBadge';
 import { formatDate, formatCurrency, tierAvailability, truncateAddress } from '@/lib/utils';
 import { Calendar, MapPin, Users, DollarSign, Ticket, ArrowRightLeft, Shield } from 'lucide-react';
 
@@ -28,8 +26,8 @@ export default function AdminEventDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute bottom-4 left-6 right-6">
           <div className="flex gap-2 mb-2">
-            <EventTypeBadge type={event.type} />
-            <EventStatusBadge status={event.status} />
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ec5b13]/10 text-[#ec5b13] uppercase">{event.type}</span>
+            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${event.status === 'on-sale' ? 'bg-emerald-100 text-emerald-700' : event.status === 'sold-out' ? 'bg-red-100 text-red-700' : event.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>{event.status}</span>
           </div>
           <h1 className="text-xl font-bold text-white">{event.name}</h1>
         </div>
@@ -37,42 +35,42 @@ export default function AdminEventDetailPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="text-center py-3">
-            <Users size={18} className="mx-auto text-brand-600 mb-1" />
-            <p className="text-xs text-gray-500">Tickets Sold</p>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="text-center">
+            <Users size={18} className="mx-auto text-[#ec5b13] mb-3" />
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Tickets Sold</p>
             <p className="text-lg font-bold text-gray-900">{totalSold.toLocaleString()}</p>
-            <p className="text-xs text-gray-400">of {totalCap.toLocaleString()}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="text-center py-3">
-            <DollarSign size={18} className="mx-auto text-green-600 mb-1" />
-            <p className="text-xs text-gray-500">Revenue</p>
+            <p className="text-xs text-gray-400 mt-1">of {totalCap.toLocaleString()}</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="text-center">
+            <DollarSign size={18} className="mx-auto text-emerald-600 mb-3" />
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Revenue</p>
             <p className="text-lg font-bold text-gray-900">{formatCurrency(revenue)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="text-center py-3">
-            <Ticket size={18} className="mx-auto text-purple-600 mb-1" />
-            <p className="text-xs text-gray-500">Tiers</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="text-center">
+            <Ticket size={18} className="mx-auto text-blue-600 mb-3" />
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Tiers</p>
             <p className="text-lg font-bold text-gray-900">{event.tiers.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="text-center py-3">
-            <ArrowRightLeft size={18} className="mx-auto text-amber-600 mb-1" />
-            <p className="text-xs text-gray-500">Resale</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="text-center">
+            <ArrowRightLeft size={18} className="mx-auto text-amber-600 mb-3" />
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Resale</p>
             <p className="text-lg font-bold text-gray-900">{event.resaleEnabled ? 'Enabled' : 'Disabled'}</p>
-            {event.resaleEnabled && <p className="text-xs text-gray-400">Max +{((event.resaleMaxMarkup - 1) * 100).toFixed(0)}%</p>}
-          </CardContent>
-        </Card>
+            {event.resaleEnabled && <p className="text-xs text-gray-400 mt-1">Max +{((event.resaleMaxMarkup - 1) * 100).toFixed(0)}%</p>}
+          </div>
+        </div>
       </div>
 
       {/* Tier breakdown */}
-      <Card>
-        <CardHeader><h2 className="font-semibold text-gray-900">Tier Breakdown</h2></CardHeader>
-        <CardContent className="space-y-4">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 className="font-semibold text-gray-900 mb-6">Tier Breakdown</h2>
+        <div className="space-y-4">
           {event.tiers.map((tier) => {
             const avail = tierAvailability(tier.sold, tier.capacity);
             return (
@@ -109,14 +107,14 @@ export default function AdminEventDetailPage() {
               </div>
             );
           })}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Minted tickets for this event */}
       {eventTickets.length > 0 && (
-        <Card>
-          <CardHeader><h2 className="font-semibold text-gray-900">Minted Tickets ({eventTickets.length})</h2></CardHeader>
-          <CardContent>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h2 className="font-semibold text-gray-900 mb-6">Minted Tickets ({eventTickets.length})</h2>
+          <div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -131,26 +129,43 @@ export default function AdminEventDetailPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {eventTickets.map(ticket => (
-                    <tr key={ticket.id} className="hover:bg-gray-50">
-                      <td className="py-2 font-mono text-xs">{ticket.id}</td>
-                      <td className="py-2">{ticket.tierName}</td>
-                      <td className="py-2 font-mono text-xs">{truncateAddress(ticket.ownerWallet)}</td>
-                      <td className="py-2"><TicketStatusBadge status={ticket.ticketData.status} /></td>
-                      <td className="py-2"><OnChainBadge status={ticket.onChainStatus} /></td>
-                      <td className="py-2 text-right font-medium">{formatCurrency(ticket.ticketData.currentPrice)}</td>
+                    <tr key={ticket.id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0">
+                      <td className="py-3 font-mono text-xs text-gray-600">{ticket.id}</td>
+                      <td className="py-3 text-sm text-gray-900">{ticket.tierName}</td>
+                      <td className="py-3 font-mono text-xs text-gray-600">{truncateAddress(ticket.ownerWallet)}</td>
+                      <td className="py-3">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          ticket.ticketData.status === 'valid' ? 'bg-emerald-100 text-emerald-700' :
+                          ticket.ticketData.status === 'used' ? 'bg-blue-100 text-blue-700' :
+                          ticket.ticketData.status === 'listed' ? 'bg-amber-100 text-amber-700' :
+                          'bg-slate-100 text-slate-700'
+                        }`}>
+                          {ticket.ticketData.status}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          ticket.onChainStatus === 'anchored' ? 'bg-emerald-100 text-emerald-700' :
+                          ticket.onChainStatus === 'verified' ? 'bg-blue-100 text-blue-700' :
+                          'bg-amber-100 text-amber-700'
+                        }`}>
+                          {ticket.onChainStatus}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right font-medium text-gray-900">{formatCurrency(ticket.ticketData.currentPrice)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Event details */}
-      <Card>
-        <CardHeader><h2 className="font-semibold text-gray-900">Event Details</h2></CardHeader>
-        <CardContent>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 className="font-semibold text-gray-900 mb-6">Event Details</h2>
+        <div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div><p className="text-xs text-gray-500">Event ID</p><p className="font-mono">{event.id}</p></div>
             <div><p className="text-xs text-gray-500">Organiser</p><p className="font-mono">{event.organizerId}</p></div>
@@ -158,8 +173,8 @@ export default function AdminEventDetailPage() {
             <div><p className="text-xs text-gray-500">Date</p><p>{formatDate(event.date.start)}</p></div>
             <div className="md:col-span-2"><p className="text-xs text-gray-500">Description</p><p className="text-gray-600">{event.description}</p></div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

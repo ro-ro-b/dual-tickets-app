@@ -1,109 +1,221 @@
 'use client';
 
-import { demoEvents, demoStats, demoTickets, demoActions } from '@/lib/demo-data';
-import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-import { StatsCards } from '@/components/tickets/StatsCards';
-import { EventStatusBadge, EventTypeBadge } from '@/components/ui/StatusBadge';
-import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils';
-import { CalendarDays, Ticket, DollarSign, TrendingUp, Activity, Zap } from 'lucide-react';
+import { demoStats, demoEvents } from '@/lib/demo-data';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import Link from 'next/link';
+import { TrendingUp, Activity, BarChart3, Zap, Server, Layers } from 'lucide-react';
 
 export default function AdminDashboardPage() {
-  const stats = [
-    { label: 'Total Events', value: demoStats.totalEvents, icon: <CalendarDays size={18} className="text-brand-600" />, color: 'bg-brand-50' },
-    { label: 'Tickets Sold', value: demoStats.totalTicketsSold.toLocaleString(), icon: <Ticket size={18} className="text-green-600" />, color: 'bg-green-50' },
-    { label: 'Total Revenue', value: formatCurrency(demoStats.totalRevenue), change: demoStats.revenueChange, icon: <DollarSign size={18} className="text-amber-600" />, color: 'bg-amber-50' },
-    { label: 'Active Events', value: demoStats.activeEvents, icon: <Zap size={18} className="text-purple-600" />, color: 'bg-purple-50' },
+  // KPI Cards Data
+  const kpis = [
+    {
+      label: 'Total Events',
+      value: demoStats.totalEvents.toLocaleString(),
+      change: '+12%',
+      icon: <BarChart3 size={20} className="text-[#ec5b13]" />,
+    },
+    {
+      label: 'Tickets Sold',
+      value: demoStats.totalTicketsSold.toLocaleString(),
+      change: '+8%',
+      icon: <Activity size={20} className="text-emerald-500" />,
+    },
+    {
+      label: 'Revenue',
+      value: formatCurrency(demoStats.totalRevenue),
+      change: '+24%',
+      icon: <TrendingUp size={20} className="text-amber-500" />,
+    },
+    {
+      label: 'Active Events',
+      value: demoStats.activeEvents.toString(),
+      change: 'Stable',
+      icon: <Zap size={20} className="text-blue-500" />,
+    },
+    {
+      label: 'Check-ins Today',
+      value: '1,120',
+      change: 'Live',
+      changeColor: 'text-red-500',
+      icon: <Layers size={20} className="text-red-500" />,
+    },
   ];
 
-  const recentActions = [...demoActions]
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 6);
+  // Sales by Event Category
+  const salesByCategory = [
+    { category: 'Music', value: 8420, percent: 32 },
+    { category: 'Sports', value: 6210, percent: 24 },
+    { category: 'Theatre', value: 4800, percent: 18 },
+    { category: 'Comedy', value: 3150, percent: 12 },
+    { category: 'Festival', value: 2900, percent: 11 },
+  ];
+
+  const maxSales = 8420;
 
   return (
     <div className="space-y-6">
-      <StatsCards stats={stats} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Events overview */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <h2 className="font-semibold text-gray-900">Events</h2>
-            <Link href="/admin/events" className="text-xs text-brand-600 hover:text-brand-700 font-medium">View all</Link>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {demoEvents.slice(0, 5).map((event) => {
-              const sold = event.tiers.reduce((s, t) => s + t.sold, 0);
-              const cap = event.tiers.reduce((s, t) => s + t.capacity, 0);
-              const rev = event.tiers.reduce((s, t) => s + t.sold * t.price, 0);
-              return (
-                <Link href={`/admin/events/${event.id}`} key={event.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <img src={event.imageUrl} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{event.name}</p>
-                    <p className="text-xs text-gray-500">{formatDate(event.date.start)} &middot; {event.venue.city}</p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-sm font-semibold text-gray-900">{formatCurrency(rev)}</p>
-                    <p className="text-xs text-gray-500">{sold}/{cap}</p>
-                  </div>
-                  <EventStatusBadge status={event.status} />
-                </Link>
-              );
-            })}
-          </CardContent>
-        </Card>
-
-        {/* Recent activity */}
-        <Card>
-          <CardHeader>
-            <h2 className="font-semibold text-gray-900">Recent Activity</h2>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentActions.map((action) => (
-              <div key={action.id} className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${action.status === 'completed' ? 'bg-green-500' : action.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'}`} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 truncate">{action.description}</p>
-                  <p className="text-xs text-gray-500">{formatDateTime(action.timestamp)}</p>
-                </div>
-                <span className="text-[10px] font-mono text-gray-400 flex-shrink-0">{action.type}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {kpis.map((kpi, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>{kpi.icon}</div>
+              <span className={`text-xs font-semibold ${kpi.changeColor || 'text-emerald-600'}`}>
+                {kpi.change}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{kpi.label}</p>
+            <p className="text-2xl font-bold text-gray-900">{kpi.value}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Revenue by tier type */}
-      <Card>
-        <CardHeader><h2 className="font-semibold text-gray-900">Revenue by Event</h2></CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {demoEvents
-              .map(e => ({ name: e.name, revenue: e.tiers.reduce((s, t) => s + t.sold * t.price, 0), type: e.type }))
-              .sort((a, b) => b.revenue - a.revenue)
-              .slice(0, 6)
-              .map((item, i) => {
-                const maxRev = demoEvents.reduce((max, e) => Math.max(max, e.tiers.reduce((s, t) => s + t.sold * t.price, 0)), 0);
-                return (
-                  <div key={i} className="flex items-center gap-3">
-                    <EventTypeBadge type={item.type} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900 truncate">{item.name}</p>
-                      <div className="w-full bg-gray-100 rounded-full h-2 mt-1">
-                        <div
-                          className="h-2 rounded-full bg-brand-500"
-                          style={{ width: `${(item.revenue / maxRev) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-900 flex-shrink-0">{formatCurrency(item.revenue)}</span>
-                  </div>
-                );
-              })}
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sales by Event */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h3 className="font-semibold text-gray-900 mb-6">Sales by Event</h3>
+          <div className="space-y-4">
+            {salesByCategory.map((item) => (
+              <div key={item.category}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-900">{item.category}</span>
+                  <span className="text-sm text-gray-600">{item.value.toLocaleString()}</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div
+                    className="h-2 rounded-full bg-[#ec5b13]"
+                    style={{ width: `${(item.percent)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Revenue Distribution */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h3 className="font-semibold text-gray-900 mb-6">Revenue Distribution</h3>
+          <div className="space-y-3">
+            {['January', 'February', 'March', 'April', 'May'].map((month, i) => {
+              const baseValue = 45000 + i * 5000;
+              return (
+                <div key={month}>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs font-medium text-gray-600">{month}</span>
+                    <span className="text-xs font-semibold text-gray-900">
+                      {formatCurrency(baseValue)}
+                    </span>
+                  </div>
+                  <div className="h-6 bg-slate-50 rounded-lg overflow-hidden flex">
+                    <div
+                      className="bg-[#ec5b13]"
+                      style={{ width: '40%' }}
+                    />
+                    <div
+                      className="bg-emerald-500"
+                      style={{ width: '35%' }}
+                    />
+                    <div
+                      className="bg-blue-500"
+                      style={{ width: '25%' }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* DUAL Network Integration */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h3 className="font-semibold text-gray-900 mb-6">DUAL Network Integration</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Core API Gateway */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Server size={18} className="text-[#ec5b13]" />
+              <h4 className="font-medium text-gray-900">Core API Gateway</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Status</span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  OPERATIONAL
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Latency</span>
+                <span className="font-mono text-gray-900">42ms</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Uptime</span>
+                <span className="font-mono text-gray-900">99.99%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Blockchain Node */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Layers size={18} className="text-blue-500" />
+              <h4 className="font-medium text-gray-900">Blockchain Node</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Status</span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  SYNCED
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Block Height</span>
+                <span className="font-mono text-gray-900">#18,492,031</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Validator</span>
+                <span className="font-mono text-gray-900">Active</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Webhooks Relay */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Activity size={18} className="text-amber-500" />
+              <h4 className="font-medium text-gray-900">Webhooks Relay</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Status</span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  LISTENING
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Queued</span>
+                <span className="font-mono text-gray-900">0</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Failure Rate</span>
+                <span className="font-mono text-gray-900">0.02%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center text-xs text-gray-500 pb-4">
+        © 2024 DUAL Tickets. Built on DUAL Protocol.
+      </div>
     </div>
   );
 }

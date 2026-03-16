@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'DUAL Tickets | Tokenised Event & Experience Platform',
-  description: 'Decentralized event and experience ticketing platform built on DUAL',
+  description: 'Decentralized event and experience ticketing platform built on DUAL Protocol',
 };
 
 export default function RootLayout({
@@ -12,18 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="min-h-screen bg-[#f8fafc]">
+    <html lang="en" className="dark">
+      <body className="min-h-screen bg-slate-100 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100">
         {children}
       </body>
     </html>

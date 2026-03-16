@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
 @layer base {
   body {
     font-family: 'Inter', system-ui, sans-serif;
@@ -13,5 +18,61 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer components {
+  /* Consumer ticket card tear line */
+  .dotted-divider {
+    border-top: 2px dashed #e2e8f0;
+    position: relative;
+  }
+  .dotted-divider::before,
+  .dotted-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    background-color: #0f172a;
+    border-radius: 50%;
+    transform: translateY(-50%);
+  }
+  .dotted-divider::before {
+    left: -10px;
+  }
+  .dotted-divider::after {
+    right: -10px;
+  }
+
+  /* Terminal/webhook code view */
+  .terminal-bg {
+    background-color: #0f172a;
+  }
+
+  /* Glow dot for live indicators */
+  .glow-dot {
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  /* Gold gradient for premium CTAs */
+  .gold-gradient {
+    background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+  }
+
+  /* Material symbols consistent sizing */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .fill-1 .material-symbols-outlined,
+  .material-symbols-outlined.fill-1 {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
 }

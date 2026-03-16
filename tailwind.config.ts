@@ -1,10 +1,18 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: 'class',
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
+        primary: '#3c83f6',
+        'primary-admin': '#ec5b13',
+        'accent-gold': '#fbbf24',
+        'background-light': '#f5f7f8',
+        'background-dark': '#0f172a',
+        'admin-bg': '#f8f6f6',
+        'admin-dark': '#221610',
         brand: {
           50: '#f0f4ff',
           100: '#dbe4ff',
@@ -17,22 +25,19 @@ const config: Config = {
           800: '#3b5bdb',
           900: '#364fc7',
         },
-        accent: {
-          50: '#fff3e0',
-          100: '#ffe0b2',
-          200: '#ffcc80',
-          300: '#ffb74d',
-          400: '#ffa726',
-          500: '#ff9800',
-          600: '#fb8c00',
-          700: '#f57c00',
-          800: '#ef6c00',
-          900: '#e65100',
-        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Public Sans', 'Inter', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
+      },
+      borderRadius: {
+        DEFAULT: '0.5rem',
+        lg: '1rem',
+        xl: '1.5rem',
+        '2xl': '2rem',
+        '3xl': '2.5rem',
+        full: '9999px',
       },
     },
   },
