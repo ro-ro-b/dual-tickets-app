@@ -41,7 +41,7 @@ export const dualClient = {
   listObjects: async (query: Record<string, unknown>) =>
     getDualClient().objects.listObjects(query),
   mintObject: async (body: Record<string, unknown>) =>
-    getDualClient().executeAction({ actionType: 'MINT', ...body }),
+    getDualClient().ebus.executeAction({ actionType: 'MINT', ...body }),
   executeAction: async (body: Record<string, unknown>) =>
-    getDualClient().executeAction(body),
+    getDualClient().ebus.executeAction(body),
 };
