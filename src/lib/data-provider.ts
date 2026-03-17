@@ -31,7 +31,7 @@ class DualDataProvider implements DataProvider {
   async listTickets() {
     const client = getDualClient();
     const result = await client.objects.listObjects({ limit: 100 });
-    return result?.data || result || [];
+    return result?.objects || result?.actions || result?.activity || result?.data || [];
   }
 
   async getTicket(id: string) {
@@ -46,7 +46,7 @@ class DualDataProvider implements DataProvider {
   async listEvents() {
     const client = getDualClient();
     const result = await client.templates.listTemplates({ limit: 100 });
-    return result?.data || result || [];
+    return result?.objects || result?.actions || result?.activity || result?.data || [];
   }
 
   async getEvent(id: string) {
