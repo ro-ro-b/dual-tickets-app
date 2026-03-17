@@ -31,5 +31,17 @@ export function getDualClient(): DualClient {
 
 /** Singleton client for direct use in route handlers */
 export const dualClient = {
-  executeAction: async (body: Record<string, unknown>) => getDualClient().executeAction(body),
+  listTemplates: async (orgId?: string) => {
+    const q: Record<string, any> = { limit: 100 };
+    if (orgId) q.organization_id = orgId;
+    return getDualClient().templates.listTemplates(q);
+  },
+  createTemplate: async (body: Record<string, unknown>) =>
+    getDualClient().templates.createTemplate(body),
+  listObjects: async (query: Record<string, unknown>) =>
+    getDualClient().objects.listObjects(query),
+  mintObject: async (body: Record<string, unknown>) =>
+    getDualClient().executeAction({ actionType: 'MINT', ...body }),
+  executeAction: async (body: Record<string, unknown>) =>
+    getDualClient().executeAction(body),
 };
