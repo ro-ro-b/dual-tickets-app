@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { demoActions } from '@/lib/demo-data';
+import { dualClient } from '@/lib/dual-client';
+
+const isDualConfigured = !!process.env.DUAL_API_KEY;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -21,6 +24,16 @@ export async function POST(request: NextRequest) {
 
   if (!validActions.includes(action)) {
     return NextResponse.json({ error: `Invalid action: ${action}. Valid actions: ${validActions.join(', ')}` }, { status: 400 });
+  }
+
+  // If DUAL_API_KEY is configured, execute action via live API
+  if (isDualConfigured) {
+    try {
+      const response = await dualClient.executeAction(body);
+      return NextResponse.json({ data: response, message: 'Action executed' }, { status: 201 });
+    } catch (error) {
+      console.error('Failed to execute action via DUAL API, falling back to demo:', error);
+    }
   }
 
   const newAction = {

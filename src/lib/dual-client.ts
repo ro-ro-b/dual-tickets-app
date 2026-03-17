@@ -20,7 +20,7 @@ export function getDualClient(): DualClient {
   if (!client) {
     client = new DualClient({
       token: process.env.DUAL_API_TOKEN || '',
-      baseUrl: process.env.NEXT_PUBLIC_DUAL_API_URL || 'https://blockv-labs.io',
+      baseUrl: process.env.NEXT_PUBLIC_DUAL_API_URL || 'https://gateway-48587430648.europe-west6.run.app',
       timeout: 30000,
       retry: { maxAttempts: 3, backoffMs: 1000 },
     });
