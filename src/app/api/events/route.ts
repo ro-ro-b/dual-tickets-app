@@ -50,19 +50,19 @@ export async function GET(request: NextRequest) {
 
   switch (sortBy) {
     case 'date-asc':
-      events.sort((a, b) => new Date(a.date.start).getTime() - new Date(b.date.start).getTime());
+      events.sort((a: any, b: any) => new Date(a.date.start).getTime() - new Date(b.date.start).getTime());
       break;
     case 'date-desc':
-      events.sort((a, b) => new Date(b.date.start).getTime() - new Date(a.date.start).getTime());
+      events.sort((a: any, b: any) => new Date(b.date.start).getTime() - new Date(a.date.start).getTime());
       break;
     case 'price-asc':
-      events.sort((a, b) => Math.min(...a.tiers.map((t: any) => t.price)) - Math.min(...b.tiers.map((t: any) => t.price)));
+      events.sort((a: any, b: any) => Math.min(...a.tiers.map((t: any) => t.price)) - Math.min(...b.tiers.map((t: any) => t.price)));
       break;
     case 'price-desc':
-      events.sort((a, b) => Math.max(...b.tiers.map((t: any) => t.price)) - Math.max(...a.tiers.map((t: any) => t.price)));
+      events.sort((a: any, b: any) => Math.max(...b.tiers.map((t: any) => t.price)) - Math.max(...a.tiers.map((t: any) => t.price)));
       break;
     case 'popularity':
-      events.sort((a, b) => b.tiers.reduce((s, t) => s + t.sold, 0) - a.tiers.reduce((s, t) => s + t.sold, 0));
+      events.sort((a: any, b: any) => b.tiers.reduce((s: any, t: any) => s + t.sold, 0) - a.tiers.reduce((s: any, t: any) => s + t.sold, 0));
       break;
   }
 
