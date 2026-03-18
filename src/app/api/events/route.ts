@@ -43,10 +43,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  if (type && type !== 'all') events = events.filter(e => e.type === type);
-  if (category && category !== 'all') events = events.filter(e => e.category === category);
-  if (city && city !== 'all') events = events.filter(e => e.venue.city.toLowerCase() === city.toLowerCase());
-  if (status && status !== 'all') events = events.filter(e => e.status === status);
+  if (type && type !== 'all') events = events.filter((e: any) => e.type === type);
+  if (category && category !== 'all') events = events.filter((e: any) => e.category === category);
+  if (city && city !== 'all') events = events.filter((e: any) => e.venue.city.toLowerCase() === city.toLowerCase());
+  if (status && status !== 'all') events = events.filter((e: any) => e.status === status);
 
   switch (sortBy) {
     case 'date-asc':
@@ -56,10 +56,10 @@ export async function GET(request: NextRequest) {
       events.sort((a, b) => new Date(b.date.start).getTime() - new Date(a.date.start).getTime());
       break;
     case 'price-asc':
-      events.sort((a, b) => Math.min(...a.tiers.map(t => t.price)) - Math.min(...b.tiers.map(t => t.price)));
+      events.sort((a, b) => Math.min(...a.tiers.map((t: any) => t.price)) - Math.min(...b.tiers.map((t: any) => t.price)));
       break;
     case 'price-desc':
-      events.sort((a, b) => Math.max(...b.tiers.map(t => t.price)) - Math.max(...a.tiers.map(t => t.price)));
+      events.sort((a, b) => Math.max(...b.tiers.map((t: any) => t.price)) - Math.max(...a.tiers.map((t: any) => t.price)));
       break;
     case 'popularity':
       events.sort((a, b) => b.tiers.reduce((s, t) => s + t.sold, 0) - a.tiers.reduce((s, t) => s + t.sold, 0));
