@@ -1,5 +1,5 @@
 /**
- * Data Provider — Tickets App
+ * Data Provider â Tickets App
  * Abstracts data access: uses DUAL SDK when configured, falls back to demo data.
  */
 import { getDualClient, isDualConfigured } from './dual-client';
@@ -14,7 +14,7 @@ export interface DataProvider {
   executeAction(objectId: string, actionType: string, payload?: any): Promise<any>;
 }
 
-/** Demo data provider — uses hardcoded sample data */
+/** Demo data provider â uses hardcoded sample data */
 class DemoDataProvider implements DataProvider {
   async listTickets() { return demoTickets; }
   async getTicket(id: string) { return demoTickets.find((t: any) => t.id === id) || null; }
@@ -26,18 +26,73 @@ class DemoDataProvider implements DataProvider {
   }
 }
 
-/** DUAL SDK data provider — uses live DUAL Platform API */
+
+// ─── Gateway Object Mappers ───
+function mapGatewayToTicket(obj: any): any {
+  const m = obj.metadata || {};
+  return {
+    id: obj.id || '',
+    templateId: obj.template_id || '',
+    templateName: m.templateName || 'dual-tickets::event-ticket::v1',
+    organizationId: obj.org_id || '',
+    ownerWallet: obj.owner || '',
+    eventId: m.eventId || obj.template_id || '',
+    tierId: m.tierId || '',
+    tierName: m.tierName || m.category || 'General Admission',
+    ticketData: {
+      eventName: m.name || m.eventName || 'Untitled Event',
+      eventDate: m.eventDate || obj.when_created || new Date().toISOString(),
+      venue: m.venue || 'TBD',
+      seatInfo: m.seatInfo,
+      purchasePrice: m.purchasePrice || m.price || 0,
+      currentPrice: m.currentPrice || m.price || 0,
+      status: m.status || 'valid',
+      purchasedAt: obj.when_created || new Date().toISOString(),
+      transferHistory: [],
+      qrCode: obj.content_hash || obj.id || '',
+    },
+    faces: m.imageUrl ? [{ id: obj.id + '-face', type: 'image', url: m.imageUrl }] : [],
+    createdAt: obj.when_created || new Date().toISOString(),
+    updatedAt: obj.when_modified || new Date().toISOString(),
+    onChainStatus: obj.content_hash ? 'anchored' : 'pending',
+  };
+}
+
+function mapGatewayToEvent(obj: any): any {
+  const m = obj.metadata || obj.object?.metadata || {};
+  return {
+    id: obj.id || '',
+    name: m.name || obj.name || 'Untitled Event',
+    type: m.type || 'event',
+    category: m.category || 'general',
+    venue: { name: m.venue || 'TBD', address: '', city: '', country: '', capacity: 0 },
+    date: { start: m.startDate || obj.when_created, end: m.endDate || obj.when_created },
+    description: m.description || '',
+    imageUrl: m.imageUrl || '',
+    organizerId: obj.org_id || '',
+    tiers: [],
+    status: m.status || 'on-sale',
+    resaleEnabled: false,
+    resaleMaxMarkup: 1.0,
+    createdAt: obj.when_created || new Date().toISOString(),
+    updatedAt: obj.when_modified || new Date().toISOString(),
+  };
+}
+
+/** DUAL SDK data provider â uses live DUAL Platform API */
 class DualDataProvider implements DataProvider {
   async listTickets() {
     const client = getDualClient();
     const result = await client.objects.listObjects({ limit: 100 });
-    return result?.objects || result?.actions || result?.activity || result?.data || [];
+    const objects = result?.objects || result?.data || [];
+    return (objects as any[]).map((obj: any) => mapGatewayToTicket(obj));
   }
 
   async getTicket(id: string) {
     try {
       const client = getDualClient();
-      return await client.objects.getObject(id);
+      const obj = await client.objects.getObject(id);
+      return obj ? mapGatewayToTicket(obj) : null;
     } catch {
       return null;
     }
@@ -46,13 +101,15 @@ class DualDataProvider implements DataProvider {
   async listEvents() {
     const client = getDualClient();
     const result = await client.templates.listTemplates({ limit: 100 });
-    return result?.objects || result?.actions || result?.activity || result?.data || [];
+    const templates = result?.templates || result?.data || [];
+    return (templates as any[]).map((t: any) => mapGatewayToEvent(t));
   }
 
   async getEvent(id: string) {
     try {
       const client = getDualClient();
-      return await client.templates.getTemplate(id);
+      const t = await client.templates.getTemplate(id);
+      return t ? mapGatewayToEvent(t) : null;
     } catch {
       return null;
     }
