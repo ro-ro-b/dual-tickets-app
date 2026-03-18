@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { demoEvents } from '@/lib/demo-data';
+import { getDataProvider } from '@/lib/data-provider';
 import { dualClient } from '@/lib/dual-client';
 
 const isDualConfigured = !!process.env.DUAL_API_KEY;
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status');
   const sortBy = searchParams.get('sortBy') || 'date-asc';
 
-  let events = [...demoEvents];
+  let events = [...(await getDataProvider().listEvents())];
 
   // If DUAL_API_KEY is configured, fetch from live API
   if (isDualConfigured) {
@@ -36,10 +36,10 @@ export async function GET(request: NextRequest) {
         resaleMaxMarkup: 1.0,
         createdAt: template.createdAt,
         updatedAt: template.updatedAt || template.createdAt,
-      })) || [...demoEvents];
+      })) || [...(await getDataProvider().listEvents())];
     } catch (error) {
       console.error('Failed to fetch from DUAL API, falling back to demo data:', error);
-      events = [...demoEvents];
+      events = [...(await getDataProvider().listEvents())];
     }
   }
 

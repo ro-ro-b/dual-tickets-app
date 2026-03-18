@@ -1,14 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { demoTickets, demoEvents } from '@/lib/demo-data';
 import { formatDate, formatCurrency, cn } from '@/lib/utils';
 import type { TicketStatus } from '@/types';
 
 type FilterType = 'today' | 'week' | 'upcoming' | 'past';
 
 export default function MyTicketsPage() {
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  
+  useEffect(() => {
+    fetch('/api/tickets').then(r => r.json()).then(d => setTickets(d.tickets || d || [])).catch(() => {});
+    fetch('/api/events').then(r => r.json()).then(d => setEvents(d.events || d || [])).catch(() => {});
+  }, []);
+
   const [filter, setFilter] = useState<FilterType>('upcoming');
 
   const getStatusColor = (status: TicketStatus) => {
@@ -57,7 +64,7 @@ export default function MyTicketsPage() {
     }
   };
 
-  const filteredTickets = demoTickets.filter(
+  const filteredTickets = tickets.filter(
     (ticket) => ticket.ownerWallet === '0x742d35Cc6634C0532925a3b844Bc026e6f7D30f0'
       && isDateInRange(ticket.ticketData.eventDate)
   );
@@ -116,7 +123,7 @@ export default function MyTicketsPage() {
           </div>
         ) : (
           filteredTickets.map((ticket) => {
-            const event = demoEvents.find((e) => e.id === ticket.eventId);
+            const event = events.find((e) => e.id === ticket.eventId);
             const isUpcoming = new Date(ticket.ticketData.eventDate) > new Date();
             const isUsed = ticket.ticketData.status === 'used';
             const isTransferred = ticket.ticketData.status === 'transferred';

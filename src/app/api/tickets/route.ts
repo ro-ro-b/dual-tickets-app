@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { demoTickets, DEMO_CONSUMER_WALLET } from '@/lib/demo-data';
+import { getDataProvider } from '@/lib/data-provider';
 import { dualClient } from '@/lib/dual-client';
 
 const isDualConfigured = !!process.env.DUAL_API_KEY;
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status');
   const owner = searchParams.get('owner');
 
-  let tickets = [...demoTickets];
+  let tickets = [...(await getDataProvider().listTickets())];
 
   // If DUAL_API_KEY is configured, fetch from live API
   if (isDualConfigured) {
@@ -21,10 +21,10 @@ export async function GET(request: NextRequest) {
         template_id: templateId,
         organization_id: orgId,
       });
-      tickets = response.data || [...demoTickets];
+      tickets = response.data || [...(await getDataProvider().listTickets())];
     } catch (error) {
       console.error('Failed to fetch from DUAL API, falling back to demo data:', error);
-      tickets = [...demoTickets];
+      tickets = [...(await getDataProvider().listTickets())];
     }
   }
 
