@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { formatDate, formatCurrency, cn } from '@/lib/utils';
+import { formatDate, formatCurrency, cn, truncateAddress } from '@/lib/utils';
 import type { TicketStatus } from '@/types';
 
 type FilterType = 'all' | 'today' | 'week' | 'upcoming' | 'past';
@@ -67,8 +67,10 @@ export default function MyTicketsPage() {
   };
 
   const filteredTickets = tickets.filter(
-    ( ticket: any) => isDateInRange(ticket.ticketData.eventDate)
+    (ticket: any) => isDateInRange(ticket.ticketData.eventDate)
   );
+
+  const anchoredCount = tickets.filter((t: any) => t.onChainStatus === 'anchored').length;
 
   const filters: { value: FilterType; label: string }[] = [
     { value: 'all', label: 'All' },
@@ -80,16 +82,41 @@ export default function MyTicketsPage() {
 
   return (
     <div className="pb-32 bg-slate-950 min-h-screen">
+      {/* DUAL Network Branded Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900 border-b border-purple-500/20">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
+              <span className="text-white font-black text-xs">D</span>
+            </div>
+            <div className="text-sm">
+              <p className="text-white font-semibold">DUAL Network</p>
+              <p className="text-purple-300 text-xs">
+                {tickets.length} Tokens · {anchoredCount} Anchored on BLOCKv
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://32f.blockv.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-400 hover:text-purple-300 transition-colors text-xs font-medium"
+          >
+            View on BLOCKv →
+          </a>
+        </div>
+      </div>
+
       {/* Header */}
-      <div className="sticky top-0 bg-slate-950 border-b border-slate-800 z-40">
+      <div className="sticky top-[62px] bg-slate-950 border-b border-slate-800 z-40">
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">
                 A
               </div>
               <div>
-                <h1 className="text-xl font-black text-white">My Tickets</h1>
+                <h1 className="text-xl font-black text-white">Token Wallet</h1>
               </div>
             </div>
             <button className="text-slate-400 hover:text-white transition-colors">
@@ -99,14 +126,14 @@ export default function MyTicketsPage() {
 
           {/* Filter pills */}
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {filters.map(( f: any) => (
+            {filters.map((f: any) => (
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
                 className={cn(
                   'px-3 py-1 rounded-full text-sm whitespace-nowrap font-medium transition-all',
                   filter === f.value
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-purple-600 text-white'
                     : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
                 )}
               >
@@ -117,143 +144,118 @@ export default function MyTicketsPage() {
         </div>
       </div>
 
-      {/* Tickets grid */}
-      <div className="px-4 pt-4">
+      {/* Tokens grid */}
+      <div className="px-4 pt-6">
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-slate-400">Loading...</p>
+            <p className="text-slate-400">Loading tokens...</p>
           </div>
         ) : filteredTickets.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-400">No tickets found</p>
+            <p className="text-slate-400">No tokens found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTickets.map(( ticket: any) => {
-            const isUpcoming = new Date(ticket.ticketData.eventDate) > new Date();
-            const isUsed = ticket.ticketData.status === 'used';
-            const isTransferred = ticket.ticketData.status === 'transferred';
+            {filteredTickets.map((ticket: any) => {
+              const isAnchored = ticket.onChainStatus === 'anchored';
+              const truncatedHash = ticket.contentHash
+                ? `${ticket.contentHash.slice(0, 6)}...${ticket.contentHash.slice(-4)}`
+                : 'pending';
+              const truncatedId = ticket.id.slice(-6);
 
-            return (
-              <Link
-                key={ticket.id}
-                href={`/wallet/ticket/${ticket.id}`}
-                className={cn(
-                  'block rounded-xl overflow-hidden transition-all hover:shadow-lg',
-                  isUsed && 'opacity-80 scale-[0.98]'
-                )}
-              >
-                {/* Ticket Card */}
-                <div className="bg-white text-slate-900">
-                  {/* Top section with event image */}
-                  <div className="relative h-40 bg-slate-200 overflow-hidden">
-                    {ticket.faces[0] && (
-                      <img
-                        src={ticket.faces[0].url}
-                        alt={ticket.ticketData.eventName}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  </div>
+              return (
+                <Link
+                  key={ticket.id}
+                  href={`/wallet/ticket/${ticket.id}`}
+                  className="block group"
+                >
+                  {/* Premium Token Card */}
+                  <div className="h-full bg-gradient-to-br from-slate-800/50 to-slate-900 border border-slate-700/50 rounded-xl overflow-hidden transition-all duration-300 hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10">
+                    {/* Hero Image Area */}
+                    <div className="relative h-48 bg-gradient-to-br from-purple-900/40 to-violet-900/20 overflow-hidden group-hover:from-purple-900/60 group-hover:to-violet-900/40 transition-all duration-300">
+                      {ticket.faces[0] && (
+                        <img
+                          src={ticket.faces[0].url}
+                          alt={ticket.ticketData.eventName}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      )}
+                      {/* Overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
 
-                  {/* Main content */}
-                  <div className="p-4">
-                    {/* Status badge and order number */}
-                    <div className="flex items-center justify-between mb-2">
-                      <span
-                        className={cn(
-                          'px-2 py-1 rounded text-xs font-bold uppercase tracking-wide',
-                          getStatusColor(ticket.ticketData.status)
-                        )}
-                      >
-                        {getStatusLabel(ticket.ticketData.status)}
-                      </span>
-                      <span className="text-xs text-slate-500 font-mono">
-                        #{ticket.id.slice(-6)}
-                      </span>
+                      {/* Token ID Badge - Top Right */}
+                      <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur border border-purple-500/30 rounded-lg px-2.5 py-1.5">
+                        <p className="text-purple-300 font-mono text-xs font-semibold">#{truncatedId}</p>
+                      </div>
+
+                      {/* Chain Status Badge - Top Left */}
+                      {isAnchored && (
+                        <div className="absolute top-3 left-3">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-500/80 backdrop-blur border border-emerald-400/30 rounded-lg animate-pulse">
+                            <span className="inline-block w-1.5 h-1.5 bg-emerald-300 rounded-full"></span>
+                            <p className="text-emerald-50 font-mono text-xs font-semibold">ANCHORED</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Event name */}
-                    <h3 className="text-xl font-black mb-2 line-clamp-2">
-                      {ticket.ticketData.eventName}
-                    </h3>
+                    {/* Content Section */}
+                    <div className="p-4 space-y-3">
+                      {/* Token Name */}
+                      <div>
+                        <h3 className="text-sm font-black text-white line-clamp-2 group-hover:text-purple-300 transition-colors">
+                          {ticket.ticketData.eventName}
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-1">{ticket.ticketData.venue}</p>
+                      </div>
 
-                    {/* Venue and date */}
-                    <div className="space-y-1 text-sm mb-4">
-                      <p className="text-slate-600">{ticket.ticketData.venue}</p>
-                      <p className={isUpcoming ? 'text-blue-600 font-semibold' : 'text-slate-500'}>
-                        {formatDate(ticket.ticketData.eventDate)}
+                      {/* Divider */}
+                      <div className="border-t border-slate-700/30" />
+
+                      {/* Hash Display */}
+                      <div className="space-y-2">
+                        <p className="text-xs text-slate-500 font-medium">Content Hash</p>
+                        <div className="bg-slate-900/60 border border-slate-700/50 rounded px-2.5 py-1.5">
+                          <p className="text-slate-300 font-mono text-xs tracking-tight">
+                            {truncatedHash}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Owner Info */}
+                      <div className="bg-slate-900/40 rounded px-2.5 py-2 border border-slate-700/30">
+                        <p className="text-xs text-slate-500 mb-1">Owner Address</p>
+                        <p className="text-slate-300 font-mono text-xs">
+                          {truncateAddress(ticket.ownerWallet)}
+                        </p>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 pt-1">
+                        {ticket.explorerLinks?.contentHash && (
+                          <a
+                            href={ticket.explorerLinks.contentHash}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e: any) => e.preventDefault()}
+                            className="flex-1 px-2 py-1.5 bg-purple-600/20 border border-purple-500/30 rounded text-purple-300 text-xs font-semibold hover:bg-purple-600/40 hover:border-purple-500/50 transition-colors text-center"
+                          >
+                            View on Chain
+                          </a>
+                        )}
+                        <button className="flex-1 px-2 py-1.5 bg-slate-700/40 border border-slate-600/30 rounded text-slate-300 text-xs font-semibold hover:bg-slate-700/60 transition-colors">
+                          Details
+                        </button>
+                      </div>
+
+                      {/* Timestamp */}
+                      <p className="text-xs text-slate-500 text-center pt-1">
+                        {formatDate(ticket.createdAt)}
                       </p>
                     </div>
-
-                    {/* Dotted divider tear line */}
-                    <div className="dotted-divider my-3" />
-
-                    {/* Seat/Venue info grid and QR button */}
-                    <div className="flex items-center justify-between">
-                      <div className="grid grid-cols-2 gap-3 text-xs flex-1">
-                        {ticket.ticketData.seatInfo && (
-                          <>
-                            <div>
-                              <p className="text-slate-500 text-xs mb-0.5">Seat</p>
-                              <p className="font-semibold">{ticket.ticketData.seatInfo}</p>
-                            </div>
-                          </>
-                        )}
-                        <div>
-                          <p className="text-slate-500 text-xs mb-0.5">Price</p>
-                          <p className="font-semibold">{formatCurrency(ticket.ticketData.purchasePrice)}</p>
-                        </div>
-                      </div>
-
-                      {/* QR button for valid tickets */}
-                      {ticket.ticketData.status === 'valid' && (
-                        <button className="ml-2 p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors">
-                          <span className="material-symbols-outlined text-slate-900 text-xl">qr_code_2</span>
-                        </button>
-                      )}
-                      {isUsed && (
-                        <div className="ml-2 p-2 opacity-50">
-                          <span className="material-symbols-outlined text-slate-400 text-xl">check_circle</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Transferred message */}
-                    {isTransferred && (
-                      <div className="mt-3 pt-3 border-t border-slate-200 text-sm text-slate-600">
-                        Sent to @{ticket.ownerWallet.slice(-4)} on {formatDate(ticket.ticketData.transferHistory[0]?.timestamp || ticket.updatedAt)}
-                      </div>
-                    )}
-
-                    {/* Blockchain Verification */}
-                    {ticket.explorerLinks && (
-                      <div className="mt-2 pt-2 border-t border-slate-100 flex flex-wrap gap-2">
-                        {ticket.explorerLinks.owner && (
-                          <a href={ticket.explorerLinks.owner} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                            <span className="inline-block w-2 h-2 bg-green-400 rounded-full"></span>
-                            Owner
-                          </a>
-                        )}
-                        {ticket.explorerLinks.contentHash && (
-                          <a href={ticket.explorerLinks.contentHash} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                            <span className="inline-block w-2 h-2 bg-green-400 rounded-full"></span>
-                            Content Hash
-                          </a>
-                        )}
-                        {ticket.explorerLinks.integrityHash && (
-                          <a href={ticket.explorerLinks.integrityHash} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                            <span className="inline-block w-2 h-2 bg-green-400 rounded-full"></span>
-                            Integrity
-                          </a>
-                        )}
-                      </div>
-                    )}
                   </div>
-                </div>
-              </Link>
-            );
+                </Link>
+              );
             })}
           </div>
         )}
