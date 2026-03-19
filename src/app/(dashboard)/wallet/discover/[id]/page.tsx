@@ -24,7 +24,7 @@ export default function EventDetailPage() {
   const totalPrice = selectedTierData ? selectedTierData.price * quantity : 0;
 
   return (
-    <div className="pb-40 bg-slate-950 min-h-screen">
+    <div className="pb-40 md:pb-0 bg-slate-950 min-h-screen">
       {/* Hero Image */}
       <div className="relative h-72 bg-slate-800 overflow-hidden">
         <img
@@ -203,9 +203,9 @@ export default function EventDetailPage() {
         </div>
       </div>
 
-      {/* Sticky bottom bar */}
+      {/* Sticky bottom bar on mobile, inline on desktop */}
       {selectedTier && (
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 p-4 max-w-[448px] mx-auto">
+        <div className="fixed bottom-0 left-0 right-0 md:static bg-slate-900 border-t border-slate-800 p-4 md:px-4 md:py-6">
           {/* Quantity selector */}
           <div className="flex items-center justify-between mb-3">
             <span className="text-slate-300 text-sm">Quantity</span>

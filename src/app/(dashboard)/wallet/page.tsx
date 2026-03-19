@@ -108,14 +108,15 @@ export default function MyTicketsPage() {
         </div>
       </div>
 
-      {/* Tickets list */}
-      <div className="px-4 space-y-4 pt-4">
+      {/* Tickets grid */}
+      <div className="px-4 pt-4">
         {filteredTickets.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-400">No tickets found</p>
           </div>
         ) : (
-          filteredTickets.map((ticket) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTickets.map((ticket) => {
             const event = demoEvents.find((e) => e.id === ticket.eventId);
             const isUpcoming = new Date(ticket.ticketData.eventDate) > new Date();
             const isUsed = ticket.ticketData.status === 'used';
@@ -217,7 +218,8 @@ export default function MyTicketsPage() {
                 </div>
               </Link>
             );
-          })
+            })}
+          </div>
         )}
       </div>
     </div>

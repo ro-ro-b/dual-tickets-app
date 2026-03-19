@@ -135,11 +135,11 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {/* Popular Near You - 2-column grid */}
+        {/* Popular Near You - responsive grid */}
         {popular.length > 0 && (
           <div>
             <h2 className="text-white font-black text-lg mb-3">Popular Near You</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {popular.map((event) => {
                 const minPrice = Math.min(...event.tiers.map((t) => t.price));
 
