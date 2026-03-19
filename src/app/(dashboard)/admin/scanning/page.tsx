@@ -1,17 +1,17 @@
 'use client';
 
 import { formatDateTime } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, RefreshCw, CheckCircle2, AlertCircle, Clock, Activity } from 'lucide-react';
 
-const mockScans = [
-  { id: 'scan-2901', status: 'VALID', ticketId: 'TKT-89234', holder: 'Sarah Chen', zone: 'Section A, Row 12', timestamp: '2026-03-16T14:45:23Z' },
-  { id: 'scan-2900', status: 'VIP', ticketId: 'TKT-89233', holder: 'Michael Smith', zone: 'VIP Lounge', timestamp: '2026-03-16T14:44:15Z' },
-  { id: 'scan-2899', status: 'VALID', ticketId: 'TKT-89232', holder: 'Jessica Brown', zone: 'Section B, Row 8', timestamp: '2026-03-16T14:43:42Z' },
-  { id: 'scan-2898', status: 'ALREADY_USED', ticketId: 'TKT-89231', holder: 'David Wilson', zone: 'Section C, Row 5', timestamp: '2026-03-16T14:42:10Z' },
-  { id: 'scan-2897', status: 'VIP', ticketId: 'TKT-89230', holder: 'Emily Rodriguez', zone: 'VIP Lounge', timestamp: '2026-03-16T14:41:35Z' },
-  { id: 'scan-2896', status: 'INVALID', ticketId: 'TKT-89229', holder: 'James Park', zone: 'Denied', timestamp: '2026-03-16T14:40:12Z' },
-];
+interface Scan {
+  id: string;
+  status: 'VALID' | 'VIP' | 'ALREADY_USED' | 'INVALID';
+  ticketId: string;
+  holder: string;
+  zone: string;
+  timestamp: string;
+}
 
 const statusConfig = {
   VALID: { color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2, label: 'Valid' },
@@ -23,15 +23,36 @@ const statusConfig = {
 export default function ScanningPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEvent, setSelectedEvent] = useState('vivid-sydney');
+  const [scans, setScans] = useState<Scan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ totalCheckIns: 0, capacity: 2500 });
 
-  const filteredScans = mockScans.filter((scan) =>
+  useEffect(() => {
+    const fetchScans = async () => {
+      try {
+        setLoading(true);
+        // Fetch from /api/actions for scanning data
+        const response = await fetch(`/api/actions?eventId=${selectedEvent}`);
+        if (!response.ok) throw new Error('Failed to fetch scans');
+        const data = await response.json();
+        setScans(data || []);
+      } catch (err: any) {
+        console.error(err);
+        setScans([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchScans();
+  }, [selectedEvent]);
+
+  const filteredScans = scans.filter((scan) =>
     scan.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
     scan.holder.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalCheckIns = 1842;
-  const capacity = 2500;
-  const checkInPercent = (totalCheckIns / capacity) * 100;
+  const checkInPercent = (stats.totalCheckIns / stats.capacity) * 100;
 
   const validScans = filteredScans.filter((s) => s.status === 'VALID').length;
   const vipScans = filteredScans.filter((s) => s.status === 'VIP').length;
@@ -46,7 +67,7 @@ export default function ScanningPage() {
             <h1 className="text-3xl font-bold text-gray-900">Live Check-in Monitoring</h1>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              LIVE SYSTEM CONNECTED
+              {scans.length > 0 ? 'LIVE SYSTEM CONNECTED' : 'WAITING FOR SCANS...'}
             </span>
           </div>
           <p className="text-sm text-gray-600 mt-2">Real-time venue scanning and check-in data</p>
@@ -79,8 +100,8 @@ export default function ScanningPage() {
           <p className="text-xs text-gray-500 uppercase tracking-wide mb-4">Total Check-ins</p>
           <div className="flex items-end justify-between mb-4">
             <div>
-              <p className="text-3xl font-bold text-gray-900">{totalCheckIns.toLocaleString()}</p>
-              <p className="text-xs text-gray-600 mt-1">of {capacity.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.totalCheckIns.toLocaleString()}</p>
+              <p className="text-xs text-gray-600 mt-1">of {stats.capacity.toLocaleString()}</p>
             </div>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
@@ -98,11 +119,11 @@ export default function ScanningPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Active Scanners</span>
-              <span className="text-lg font-bold text-gray-900">4</span>
+              <span className="text-lg font-bold text-gray-900">—</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Avg Processing</span>
-              <span className="text-lg font-bold text-gray-900">12.4s</span>
+              <span className="text-lg font-bold text-gray-900">—</span>
             </div>
             <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200">
               <div>
@@ -153,34 +174,47 @@ export default function ScanningPage() {
         </div>
 
         <div className="divide-y divide-slate-200 max-h-96 overflow-y-auto">
-          {filteredScans.map((scan) => {
-            const config = statusConfig[scan.status as keyof typeof statusConfig];
-            const Icon = config.icon;
-            return (
-              <div key={scan.id} className="px-6 py-4 hover:bg-slate-50 transition-colors">
-                <div className="flex items-start gap-4">
-                  <div className={`p-2 rounded-lg flex-shrink-0 ${config.color}`}>
-                    <Icon size={18} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{scan.holder}</p>
-                        <p className="text-xs text-gray-600 font-mono">{scan.ticketId}</p>
-                      </div>
-                      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${config.color}`}>
-                        {config.label}
-                      </span>
+          {loading ? (
+            <div className="px-6 py-8 text-center">
+              <div className="inline-block">
+                <div className="w-8 h-8 border-4 border-slate-200 border-t-[#ec5b13] rounded-full animate-spin" />
+              </div>
+              <p className="text-slate-500 mt-3">Loading scans...</p>
+            </div>
+          ) : filteredScans.length === 0 ? (
+            <div className="px-6 py-8 text-center">
+              <p className="text-slate-500">Waiting for scans...</p>
+            </div>
+          ) : (
+            filteredScans.map((scan) => {
+              const config = statusConfig[scan.status as keyof typeof statusConfig];
+              const Icon = config.icon;
+              return (
+                <div key={scan.id} className="px-6 py-4 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    <div className={`p-2 rounded-lg flex-shrink-0 ${config.color}`}>
+                      <Icon size={18} />
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-600">
-                      <span>{scan.zone}</span>
-                      <span className="font-mono">{formatDateTime(scan.timestamp)}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{scan.holder}</p>
+                          <p className="text-xs text-gray-600 font-mono">{scan.ticketId}</p>
+                        </div>
+                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${config.color}`}>
+                          {config.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-gray-600">
+                        <span>{scan.zone}</span>
+                        <span className="font-mono">{formatDateTime(scan.timestamp)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </div>
 

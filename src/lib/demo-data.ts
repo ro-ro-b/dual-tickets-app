@@ -1,11 +1,25 @@
 /**
- * Type definitions for ticketing domain.
- * All demo data has been removed. Application now uses DUAL network data only.
- * See src/types/index.ts for the official type definitions.
+ * DEPRECATED: This file is no longer used.
+ *
+ * All mock/demo data has been removed from the DUAL Tickets App.
+ * All pages now fetch data from live API endpoints:
+ *
+ * - /api/tickets - Get ticket data and minted tickets
+ * - /api/actions - Get transfer and webhook event data
+ * - /api/events/:id - Get specific event details
+ * - /api/templates - Get DUAL template schemas
+ *
+ * This file is kept for backward compatibility only.
+ * Remove imports from this file and replace with API calls.
+ *
+ * See updated files:
+ * - src/app/(dashboard)/wallet/activity/page.tsx
+ * - src/app/(dashboard)/admin/scanning/page.tsx
+ * - src/app/(dashboard)/admin/orders/page.tsx
+ * - src/app/(dashboard)/admin/templates/page.tsx
+ * - src/app/(dashboard)/admin/webhooks/page.tsx
+ * - src/app/(dashboard)/admin/events/[id]/page.tsx
  */
-
-// This file is deprecated. All types are defined in src/types/index.ts
-// Demo data exports have been removed to enforce DUAL-only mode.
 
 // Placeholder exports for backward compatibility (if still needed)
 export const demoTickets: any[] = [];

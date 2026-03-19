@@ -1,19 +1,98 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { demoEvents, demoTickets } from '@/lib/demo-data';
+import { useState, useEffect } from 'react';
 import { formatDate, formatCurrency, tierAvailability, truncateAddress } from '@/lib/utils';
 import { Calendar, MapPin, Users, DollarSign, Ticket, ArrowRightLeft, Shield } from 'lucide-react';
 
+interface Tier {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  capacity: number;
+  sold: number;
+  perks: string[];
+}
+
+interface Event {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  imageUrl: string;
+  date: { start: string; end: string };
+  venue: { name: string; city: string };
+  description: string;
+  organizerId: string;
+  tiers: Tier[];
+  resaleEnabled: boolean;
+  resaleMaxMarkup: number;
+}
+
+interface Ticket {
+  id: string;
+  eventId: string;
+  tierName: string;
+  ownerWallet: string;
+  onChainStatus: string;
+  ticketData: { status: string; currentPrice: number };
+}
+
 export default function AdminEventDetailPage() {
   const { id } = useParams();
-  const event = demoEvents.find(e => e.id === id);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!event) {
-    return <div className="text-center py-12"><p className="text-gray-500">Event not found</p></div>;
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch event details
+        const eventRes = await fetch(`/api/events/${id}`);
+        if (!eventRes.ok) throw new Error('Event not found');
+        const eventData = await eventRes.json();
+        setEvent(eventData);
+
+        // Fetch tickets for this event
+        const ticketsRes = await fetch(`/api/tickets?eventId=${id}`);
+        if (ticketsRes.ok) {
+          const ticketsData = await ticketsRes.json();
+          setTickets(ticketsData || []);
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchEventData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <div className="inline-block">
+          <div className="w-8 h-8 border-4 border-slate-200 border-t-[#ec5b13] rounded-full animate-spin" />
+        </div>
+        <p className="text-gray-500 mt-4">Loading event...</p>
+      </div>
+    );
   }
 
-  const eventTickets = demoTickets.filter((t: any) => t.eventId === id);
+  if (error || !event) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">{error ? `Error: ${error}` : 'Event not found'}</p>
+      </div>
+    );
+  }
+
   const totalSold = event.tiers.reduce((s: any, t: any) => s + t.sold, 0);
   const totalCap = event.tiers.reduce((s: any, t: any) => s + t.capacity, 0);
   const revenue = event.tiers.reduce((s: any, t: any) => s + t.sold * t.price, 0);
@@ -111,9 +190,9 @@ export default function AdminEventDetailPage() {
       </div>
 
       {/* Minted tickets for this event */}
-      {eventTickets.length > 0 && (
+      {tickets.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <h2 className="font-semibold text-gray-900 mb-6">Minted Tickets ({eventTickets.length})</h2>
+          <h2 className="font-semibold text-gray-900 mb-6">Minted Tickets ({tickets.length})</h2>
           <div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -128,7 +207,7 @@ export default function AdminEventDetailPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {eventTickets.map(ticket => (
+                  {tickets.map(ticket => (
                     <tr key={ticket.id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0">
                       <td className="py-3 font-mono text-xs text-gray-600">{ticket.id}</td>
                       <td className="py-3 text-sm text-gray-900">{ticket.tierName}</td>

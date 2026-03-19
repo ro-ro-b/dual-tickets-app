@@ -1,20 +1,40 @@
 'use client';
 
-import { demoActions } from '@/lib/demo-data';
 import { formatDateTime } from '@/lib/utils';
 import { CheckCircle, AlertCircle, Lock } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const webhookLog = [
-  { id: 1, event: 'TICKET.PURCHASED', payload: { ticketId: 'tkt-001', amount: 195, buyer: 'Sarah Chen' }, timestamp: new Date(Date.now() - 60000).toISOString() },
-  { id: 2, event: 'WEBHOOK.VERIFIED', payload: { endpoint: 'https://api.example.com/webhooks', status: 'verified' }, timestamp: new Date(Date.now() - 120000).toISOString() },
-  { id: 3, event: 'TICKET.PURCHASED', payload: { ticketId: 'tkt-002', amount: 189, buyer: 'Michael Smith' }, timestamp: new Date(Date.now() - 180000).toISOString() },
-  { id: 4, event: 'TICKET.TRANSFERRED', payload: { from: '0x742d...', to: '0xABCD...', ticketId: 'tkt-005' }, timestamp: new Date(Date.now() - 300000).toISOString() },
-  { id: 5, event: 'TICKET.REDEEMED', payload: { ticketId: 'tkt-005', venue: 'Accor Stadium', timestamp: new Date().toISOString() }, timestamp: new Date(Date.now() - 600000).toISOString() },
-];
+interface WebhookEvent {
+  id: number;
+  event: string;
+  payload: Record<string, any>;
+  timestamp: string;
+}
 
 export default function WebhooksPage() {
   const [autoScroll, setAutoScroll] = useState(true);
+  const [events, setEvents] = useState<WebhookEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        // Fetch from /api/actions for webhook events
+        const response = await fetch('/api/actions');
+        if (!response.ok) throw new Error('Failed to fetch events');
+        const data = await response.json();
+        setEvents(data || []);
+      } catch (err: any) {
+        console.error(err);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const successRate = 99.8;
 
@@ -29,7 +49,7 @@ export default function WebhooksPage() {
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            Connected
+            {events.length > 0 ? 'Connected' : 'Listening for events...'}
           </span>
           <button className="px-6 py-2.5 bg-[#ec5b13] text-white rounded-xl font-medium hover:bg-orange-600 transition-colors">
             Add Endpoint
@@ -139,32 +159,42 @@ export default function WebhooksPage() {
 
             {/* Stream content */}
             <div className="flex-1 overflow-y-auto space-y-2 text-slate-300">
-              {webhookLog.map((log) => (
-                <div key={log.id} className="space-y-1">
-                  <div>
-                    <span className="text-emerald-400">{`[${formatDateTime(log.timestamp)}]`}</span>
-                    <span className={log.event.startsWith('TICKET') ? ' text-emerald-300' : ' text-blue-300'}>
-                      {` → ${log.event}`}
-                    </span>
-                  </div>
-                  <div className="ml-4 text-slate-400">
-                    {`{`}
-                    <div className="ml-4 space-y-0.5">
-                      {Object.entries(log.payload).map(([key, value]) => (
-                        <div key={key}>
-                          <span className="text-purple-300">"{key}"</span>
-                          <span className="text-slate-300">: </span>
-                          <span className="text-yellow-300">
-                            {typeof value === 'string' ? `"${value}"` : String(value)}
-                          </span>
-                          <span className="text-slate-300">,</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div>{`}`}</div>
-                  </div>
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <span className="text-slate-400">Listening for events...</span>
                 </div>
-              ))}
+              ) : events.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <span className="text-slate-400">Waiting for webhook events...</span>
+                </div>
+              ) : (
+                events.map((log) => (
+                  <div key={log.id} className="space-y-1">
+                    <div>
+                      <span className="text-emerald-400">{`[${formatDateTime(log.timestamp)}]`}</span>
+                      <span className={log.event.startsWith('TICKET') ? ' text-emerald-300' : ' text-blue-300'}>
+                        {` → ${log.event}`}
+                      </span>
+                    </div>
+                    <div className="ml-4 text-slate-400">
+                      {`{`}
+                      <div className="ml-4 space-y-0.5">
+                        {Object.entries(log.payload).map(([key, value]) => (
+                          <div key={key}>
+                            <span className="text-purple-300">"{key}"</span>
+                            <span className="text-slate-300">: </span>
+                            <span className="text-yellow-300">
+                              {typeof value === 'string' ? `"${value}"` : String(value)}
+                            </span>
+                            <span className="text-slate-300">,</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div>{`}`}</div>
+                    </div>
+                  </div>
+                ))
+              )}
               {/* Blinking cursor */}
               <div className="flex items-center gap-1">
                 <span className="text-slate-300">{">"}</span>

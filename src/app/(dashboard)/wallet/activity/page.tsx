@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatDate, truncateAddress } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -17,59 +17,34 @@ interface Transfer {
   timestamp: string;
 }
 
-// Mock transfer data
-const mockTransfers: Transfer[] = [
-  {
-    id: '1',
-    eventName: 'Tame Impala — World Tour 2026',
-    type: 'received',
-    recipient: 'Alex Rodriguez',
-    walletAddress: '0x742d35Cc6634C0532925a3b844Bc026e6f7D30f0',
-    status: 'completed',
-    timestamp: '2026-03-10T14:30:00Z',
-  },
-  {
-    id: '2',
-    eventName: 'Sydney FC vs Melbourne Victory',
-    type: 'sent',
-    recipient: 'Jordan Smith',
-    walletAddress: '0x5f9B2A9F5B3C8D9E1F2G3H4I5J6K7L8M9N0O1P2Q',
-    status: 'completed',
-    timestamp: '2026-03-08T10:15:00Z',
-  },
-  {
-    id: '3',
-    eventName: 'Vivid Sydney 2026 — Opening Night',
-    type: 'received',
-    recipient: 'Casey Lee',
-    walletAddress: '0x8c8D9F5B3C8D9E1F2G3H4I5J6K7L8M9N0O1P2Q',
-    status: 'pending',
-    timestamp: '2026-03-05T16:45:00Z',
-  },
-  {
-    id: '4',
-    eventName: 'AI & Web3 Summit 2026',
-    type: 'sent',
-    recipient: 'Morgan Davis',
-    walletAddress: '0x9e9E0G6C4D9E1F2G3H4I5J6K7L8M9N0O1P2Q3R4',
-    status: 'completed',
-    timestamp: '2026-03-01T11:20:00Z',
-  },
-  {
-    id: '5',
-    eventName: 'Sunrise Yoga on Bondi Beach',
-    type: 'sent',
-    recipient: 'Taylor Wilson',
-    walletAddress: '0x1a1A2H7D5E0F2G3H4I5J6K7L8M9N0O1P2Q3R4S5',
-    status: 'cancelled',
-    timestamp: '2026-02-28T09:00:00Z',
-  },
-];
-
 export default function ActivityPage() {
   const [tab, setTab] = useState<TabType>('all');
+  const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtered = mockTransfers.filter((t) => {
+  useEffect(() => {
+    const fetchActivity = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        // Fetch from /api/actions or /api/tickets - adjust endpoint as needed
+        const response = await fetch('/api/actions');
+        if (!response.ok) throw new Error('Failed to fetch activity');
+        const data = await response.json();
+        setTransfers(data || []);
+      } catch (err: any) {
+        setError(err.message);
+        setTransfers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActivity();
+  }, []);
+
+  const filtered = transfers.filter((t) => {
     if (tab === 'all') return true;
     return t.type === tab;
   });
@@ -126,9 +101,20 @@ export default function ActivityPage() {
 
       {/* Transfer list */}
       <div className="px-4 space-y-3 pt-4">
-        {filtered.length === 0 ? (
+        {loading ? (
           <div className="text-center py-12">
-            <p className="text-slate-500">No transfers yet</p>
+            <div className="inline-block">
+              <div className="w-8 h-8 border-4 border-slate-200 border-t-primary-consumer rounded-full animate-spin" />
+            </div>
+            <p className="text-slate-500 mt-4">Loading activity...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500">Error loading activity: {error}</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-slate-500">No activity yet</p>
           </div>
         ) : (
           filtered.map((transfer: any) => (
