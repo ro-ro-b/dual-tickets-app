@@ -13,10 +13,10 @@ export default function AdminEventDetailPage() {
     return <div className="text-center py-12"><p className="text-gray-500">Event not found</p></div>;
   }
 
-  const eventTickets = demoTickets.filter(t => t.eventId === id);
-  const totalSold = event.tiers.reduce((s, t) => s + t.sold, 0);
-  const totalCap = event.tiers.reduce((s, t) => s + t.capacity, 0);
-  const revenue = event.tiers.reduce((s, t) => s + t.sold * t.price, 0);
+  const eventTickets = demoTickets.filter((t: any) => t.eventId === id);
+  const totalSold = event.tiers.reduce((s: any, t: any) => s + t.sold, 0);
+  const totalCap = event.tiers.reduce((s: any, t: any) => s + t.capacity, 0);
+  const revenue = event.tiers.reduce((s: any, t: any) => s + t.sold * t.price, 0);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -71,7 +71,7 @@ export default function AdminEventDetailPage() {
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h2 className="font-semibold text-gray-900 mb-6">Tier Breakdown</h2>
         <div className="space-y-4">
-          {event.tiers.map((tier) => {
+          {event.tiers.map((tier: any) => {
             const avail = tierAvailability(tier.sold, tier.capacity);
             return (
               <div key={tier.id} className="p-4 bg-gray-50 rounded-lg">
@@ -99,7 +99,7 @@ export default function AdminEventDetailPage() {
                 </div>
                 {tier.perks.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {tier.perks.map(perk => (
+                    {tier.perks.map((perk: any) => (
                       <span key={perk} className="text-[10px] bg-white text-gray-500 rounded-full px-2 py-0.5">{perk}</span>
                     ))}
                   </div>

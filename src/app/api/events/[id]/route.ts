@@ -1,24 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { demoEvents, demoTickets } from '@/lib/demo-data';
+import { getDataProvider } from '@/lib/data-provider';
+
+const isDualConfigured = !!process.env.DUAL_API_KEY;
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const event = demoEvents.find(e => e.id === params.id);
-  if (!event) {
-    return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+  if (!isDualConfigured) {
+    return NextResponse.json(
+      { error: 'DUAL_API_KEY is not configured' },
+      { status: 503 }
+    );
   }
 
-  const eventTickets = demoTickets.filter(t => t.eventId === params.id);
+  try {
+    const provider = getDataProvider();
+    const event = await provider.getEvent(params.id);
+    if (!event) {
+      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+    }
 
-  return NextResponse.json({
-    data: {
-      ...event,
-      ticketCount: eventTickets.length,
-      ticketsSold: event.tiers.reduce((sum, t) => sum + t.sold, 0),
-      totalCapacity: event.tiers.reduce((sum, t) => sum + t.capacity, 0),
-      revenue: event.tiers.reduce((sum, t) => sum + (t.sold * t.price), 0),
-    },
-  });
+    const tickets = await provider.listTickets();
+    const eventTickets = tickets.filter((t: any) => t.eventId === params.id);
+
+    return NextResponse.json({
+      data: {
+        ...event,
+        ticketCount: eventTickets.length,
+        ticketsSold: 0,
+        totalCapacity: 0,
+        revenue: 0,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to fetch template from DUAL API:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch template from DUAL API' },
+      { status: 500 }
+    );
+  }
 }

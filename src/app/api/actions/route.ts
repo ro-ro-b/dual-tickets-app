@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { demoActions } from '@/lib/demo-data';
 import { dualClient } from '@/lib/dual-client';
 
 const isDualConfigured = !!process.env.DUAL_API_KEY;
@@ -8,12 +7,23 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const objectId = searchParams.get('objectId');
 
-  let actions = [...demoActions];
-  if (objectId) actions = actions.filter(a => a.objectId === objectId);
+  if (!isDualConfigured) {
+    return NextResponse.json(
+      { error: 'DUAL_API_KEY is not configured' },
+      { status: 503 }
+    );
+  }
 
-  actions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-  return NextResponse.json({ data: actions, total: actions.length });
+  try {
+    // DUAL network does not have a direct actions history API, return empty array
+    return NextResponse.json({ data: [], total: 0 });
+  } catch (error) {
+    console.error('Failed to fetch actions:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch actions' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -26,26 +36,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Invalid action: ${action}. Valid actions: ${validActions.join(', ')}` }, { status: 400 });
   }
 
-  // If DUAL_API_KEY is configured, execute action via live API
-  if (isDualConfigured) {
-    try {
-      const response = await dualClient.executeAction(body);
-      return NextResponse.json({ data: response, message: 'Action executed' }, { status: 201 });
-    } catch (error) {
-      console.error('Failed to execute action via DUAL API, falling back to demo:', error);
-    }
+  if (!isDualConfigured) {
+    return NextResponse.json(
+      { error: 'DUAL_API_KEY is not configured' },
+      { status: 503 }
+    );
   }
 
-  const newAction = {
-    id: 'act-' + Date.now(),
-    objectId,
-    type: action,
-    actor: actor || 'demo-user',
-    timestamp: new Date().toISOString(),
-    status: 'completed' as const,
-    description: `Action ${action} executed on ticket ${objectId}`,
-    parameters: parameters || {},
-  };
-
-  return NextResponse.json({ data: newAction, message: 'Action executed' }, { status: 201 });
+  try {
+    const response = await dualClient.executeAction(body);
+    return NextResponse.json({ data: response, message: 'Action executed on DUAL network' }, { status: 201 });
+  } catch (error) {
+    console.error('Failed to execute action via DUAL API:', error);
+    return NextResponse.json(
+      { error: 'Failed to execute action on DUAL network' },
+      { status: 500 }
+    );
+  }
 }

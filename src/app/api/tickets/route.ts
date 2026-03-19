@@ -12,49 +12,58 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status');
   const owner = searchParams.get('owner');
 
-  let tickets = [...(await getDataProvider().listTickets())];
-
-  // If DUAL_API_KEY is configured, fetch from live API
-  if (isDualConfigured) {
-    try {
-      const response = await dualClient.listObjects({
-        template_id: templateId,
-        organization_id: orgId,
-      });
-      tickets = response.data || [...(await getDataProvider().listTickets())];
-    } catch (error) {
-      console.error('Failed to fetch from DUAL API, falling back to demo data:', error);
-      tickets = [...(await getDataProvider().listTickets())];
-    }
+  if (!isDualConfigured) {
+    return NextResponse.json(
+      { error: 'DUAL_API_KEY is not configured' },
+      { status: 503 }
+    );
   }
 
-  if (eventId) tickets = tickets.filter(t => t.eventId === eventId);
-  if (status) tickets = tickets.filter(t => t.ticketData.status === status);
-  if (owner) tickets = tickets.filter(t => t.ownerWallet === owner);
+  try {
+    const response = await dualClient.listObjects({
+      template_id: templateId,
+      organization_id: orgId,
+    });
+    let tickets = response.data || [];
 
-  return NextResponse.json({ data: tickets, total: tickets.length });
+    if (eventId) tickets = tickets.filter((t: any) => t.template_id === eventId);
+    if (status) tickets = tickets.filter((t: any) => !t.content_hash || t.content_hash === '0x0000000000000000000000000000000000000000' ? 'pending' : 'anchored' === status);
+    if (owner) tickets = tickets.filter((t: any) => t.owner === owner);
+
+    return NextResponse.json({ data: tickets, total: tickets.length });
+  } catch (error) {
+    console.error('Failed to fetch from DUAL API:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch tickets from DUAL API' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
-  if (isDualConfigured) {
-    try {
-      const response = await dualClient.mintObject({
-        template_id: templateId,
-        ...body,
-      });
-      return NextResponse.json({
-        data: response,
-        message: 'Tickets minted',
-      }, { status: 201 });
-    } catch (error) {
-      console.error('Failed to mint via DUAL API, falling back to demo:', error);
-    }
+  if (!isDualConfigured) {
+    return NextResponse.json(
+      { error: 'DUAL_API_KEY is not configured' },
+      { status: 503 }
+    );
   }
 
-  return NextResponse.json({
-    data: { id: 'tkt-new-' + Date.now(), ...body },
-    message: 'Tickets minted',
-  }, { status: 201 });
+  try {
+    const response = await dualClient.mintObject({
+      template_id: templateId,
+      ...body,
+    });
+    return NextResponse.json({
+      data: response,
+      message: 'Ticket minted on DUAL network',
+    }, { status: 201 });
+  } catch (error) {
+    console.error('Failed to mint via DUAL API:', error);
+    return NextResponse.json(
+      { error: 'Failed to mint ticket on DUAL network' },
+      { status: 500 }
+    );
+  }
 }

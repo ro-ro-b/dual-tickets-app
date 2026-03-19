@@ -1,9 +1,8 @@
 /**
- * Data Provider â Tickets App
- * Abstracts data access: uses DUAL SDK when configured, falls back to demo data.
+ * Data Provider — Tickets App
+ * DUAL network data only. No demo data, no fake enrichment.
  */
 import { getDualClient, isDualConfigured } from './dual-client';
-import { demoTickets, demoEvents, demoActions, demoStats } from './demo-data';
 
 export interface DataProvider {
   listTickets(): Promise<any[]>;
@@ -14,85 +13,59 @@ export interface DataProvider {
   executeAction(objectId: string, actionType: string, payload?: any): Promise<any>;
 }
 
-/** Demo data provider â uses hardcoded sample data */
-class DemoDataProvider implements DataProvider {
-  async listTickets() { return demoTickets; }
-  async getTicket(id: string) { return demoTickets.find((t: any) => t.id === id) || null; }
-  async listEvents() { return demoEvents; }
-  async getEvent(id: string) { return demoEvents.find((e: any) => e.id === id) || null; }
-  async getStats() { return demoStats; }
-  async executeAction(objectId: string, actionType: string, payload?: any) {
-    return { success: true, demo: true, objectId, actionType };
-  }
-}
-
-
-
-// Gateway Object Mappers - enriched with realistic event data
-const EVENT_CATALOG = [
-  { eventName: 'Vivid Sydney 2026', venue: 'Sydney Opera House', tier: 'VIP Lounge', price: 195, imageUrl: 'https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?w=400&h=250&fit=crop', category: 'arts' },
-  { eventName: 'Tame Impala World Tour', venue: 'Qudos Bank Arena', tier: 'Gold Circle', price: 189, imageUrl: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&h=250&fit=crop', category: 'music' },
-  { eventName: 'A-League Grand Final', venue: 'Accor Stadium', tier: 'Category A', price: 120, imageUrl: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=400&h=250&fit=crop', category: 'sport' },
-  { eventName: 'AI & Web3 Summit 2026', venue: 'ICC Sydney', tier: 'Pro Pass', price: 599, imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=250&fit=crop', category: 'tech' },
-  { eventName: 'Sunrise Yoga on Bondi Beach', venue: 'Bondi Beach Pavilion', tier: 'Premium', price: 85, imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=250&fit=crop', category: 'wellness' },
-  { eventName: 'Blue Mountains Helicopter Tour', venue: 'Blue Mountains Helipad', tier: 'Flight + Champagne', price: 650, imageUrl: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=400&h=250&fit=crop', category: 'adventure' },
-  { eventName: 'Sydney Comedy Gala', venue: 'State Theatre', tier: 'Premium Stalls', price: 95, imageUrl: 'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?w=400&h=250&fit=crop', category: 'comedy' },
-  { eventName: 'Hunter Valley Wine Masterclass', venue: "Tyrrell's Wines", tier: 'Premium + Bottle', price: 295, imageUrl: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=400&h=250&fit=crop', category: 'food-wine' },
-];
-
-function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
+/**
+ * Maps DUAL gateway object (template instance) to Ticket shape.
+ * Uses REAL data from metadata only. No enrichment, no catalog lookups.
+ */
 function mapGatewayToTicket(obj: any): any {
   const m = obj.metadata || {};
-  const idx = hashCode(obj.id || '') % EVENT_CATALOG.length;
-  const seed = EVENT_CATALOG[idx];
-  const hasReal = m.eventName || m.venue;
-  const e = hasReal ? m : seed;
   return {
     id: obj.id || '',
     templateId: obj.template_id || '',
-    templateName: 'dual-tickets::event-ticket::v1',
+    templateName: 'dual-ticket',
     organizationId: obj.org_id || '',
     ownerWallet: obj.owner || '',
     eventId: obj.template_id || '',
-    tierId: 'tier-' + idx,
-    tierName: e.tier || 'General Admission',
+    tierId: obj.template_id || '',
+    tierName: m.category || 'Token',
     ticketData: {
-      eventName: e.eventName || m.name || 'Live Event',
-      eventDate: m.eventDate || obj.when_created || new Date().toISOString(),
-      venue: e.venue || 'TBD',
-      purchasePrice: e.price || 0,
-      currentPrice: e.price || 0,
-      status: 'valid',
+      eventName: m.name || 'DUAL Token',
+      eventDate: obj.when_created || new Date().toISOString(),
+      venue: 'DUAL Network',
+      purchasePrice: 0,
+      currentPrice: 0,
+      status: 'valid' as const,
       purchasedAt: obj.when_created || new Date().toISOString(),
       transferHistory: [],
       qrCode: obj.content_hash || obj.id || '',
     },
-    faces: [{ id: obj.id + '-face', type: 'image', url: e.imageUrl || '' }],
+    faces: m.image?.url ? [{ id: obj.id + '-face', type: 'image', url: m.image.url }] : [{ id: obj.id + '-face', type: 'image', url: '/placeholder-ticket.svg' }],
     createdAt: obj.when_created || new Date().toISOString(),
     updatedAt: obj.when_modified || new Date().toISOString(),
-    onChainStatus: obj.content_hash ? 'anchored' : 'pending',
+    onChainStatus: obj.content_hash && obj.content_hash !== '0x0000000000000000000000000000000000000000' ? ('anchored' as const) : ('pending' as const),
+    contentHash: obj.content_hash,
+    integrityHash: obj.integrity_hash,
   };
 }
 
+/**
+ * Maps DUAL template to Event shape.
+ * Uses REAL metadata only.
+ */
 function mapGatewayToEvent(obj: any): any {
-  const m = obj.object?.metadata || obj.metadata || {};
+  const m = obj.metadata || {};
   return {
     id: obj.id || '',
-    name: obj.name || m.name || 'Event Template',
-    type: 'event',
+    name: m.name || 'DUAL Token Template',
+    type: 'event' as const,
     category: m.category || 'general',
-    venue: { name: m.venue || 'TBD', address: '', city: 'Sydney', country: 'Australia', capacity: 5000 },
+    venue: { name: 'DUAL Network', address: '', city: '', country: '', capacity: 0 },
     date: { start: obj.when_created, end: obj.when_created },
     description: m.description || '',
-    imageUrl: m.imageUrl || '',
+    imageUrl: m.image?.url || '/placeholder-ticket.svg',
     organizerId: obj.org_id || '',
     tiers: [],
-    status: 'on-sale',
+    status: 'on-sale' as const,
     resaleEnabled: false,
     resaleMaxMarkup: 1.0,
     createdAt: obj.when_created || new Date().toISOString(),
@@ -100,8 +73,7 @@ function mapGatewayToEvent(obj: any): any {
   };
 }
 
-
-/** DUAL SDK data provider â uses live DUAL Platform API */
+/** DUAL SDK data provider — uses live DUAL Platform API only */
 class DualDataProvider implements DataProvider {
   async listTickets() {
     const client = getDualClient();
@@ -140,9 +112,10 @@ class DualDataProvider implements DataProvider {
   async getStats() {
     try {
       const client = getDualClient();
-      return await client.indexer.getPublicStats();
-    } catch {
-      return demoStats;
+      const stats = await client.indexer.getPublicStats();
+      return stats || { totalEvents: 0, activeEvents: 0, totalTicketsSold: 0, totalRevenue: 0, ticketsByStatus: {}, revenueChange: '0%', topEvent: '' };
+    } catch (error) {
+      throw new Error('Failed to fetch stats from DUAL API');
     }
   }
 
@@ -154,12 +127,14 @@ class DualDataProvider implements DataProvider {
 
 let provider: DataProvider | null = null;
 
-/** Get the data provider (DUAL SDK or demo, based on env config) */
+/** Get the data provider (DUAL SDK only) */
 export function getDataProvider(): DataProvider {
   if (!provider) {
-    const useDual = isDualConfigured();
-    provider = useDual ? new DualDataProvider() : new DemoDataProvider();
-    console.log(`[DUAL] Using ${useDual ? 'DUAL SDK' : 'Demo'} data provider`);
+    if (!isDualConfigured()) {
+      throw new Error('DUAL_API_KEY is not configured. Cannot proceed with DUAL network data.');
+    }
+    provider = new DualDataProvider();
+    console.log('[DUAL] Using DUAL SDK data provider');
   }
   return provider;
 }

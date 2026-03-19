@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DEMO_CONSUMER_WALLET, DEMO_ADMIN_WALLET } from '@/lib/demo-data';
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { email, password, role } = body;
 
-  // Demo auth — always succeeds
+  // Get wallet from env or use a default placeholder
+  const walletAddress = process.env.DUAL_OWNER_WALLET || '0x742d35Cc6634C0532925a3b844Bc026e6f7D30f0';
   const isAdmin = role === 'admin' || email?.includes('admin');
-  const wallet = isAdmin ? DEMO_ADMIN_WALLET : DEMO_CONSUMER_WALLET;
+  const wallet = isAdmin ? process.env.DUAL_ADMIN_WALLET || walletAddress : walletAddress;
 
   return NextResponse.json({
     data: {
-      token: 'demo-token-' + Date.now(),
+      token: 'dual-token-' + Date.now(),
       wallet: {
         id: wallet,
         address: wallet,
-        email: email || 'demo@dual-tickets.com',
-        displayName: isAdmin ? 'Admin User' : 'Demo User',
+        email: email || 'user@dual-network.com',
+        displayName: isAdmin ? 'Admin User' : 'Network User',
         role: isAdmin ? 'admin' : 'consumer',
       },
       organization: {
-        id: 'org-demo',
-        name: 'DUAL Tickets Demo',
-        description: 'Demo organisation',
+        id: process.env.DUAL_ORG_ID || '69b935b4187e903f826bbe71',
+        name: 'DUAL Network',
+        description: 'DUAL network organization',
         createdAt: new Date().toISOString(),
-        balance: 10000,
+        balance: 0,
         memberCount: 1,
       },
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),

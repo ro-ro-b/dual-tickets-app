@@ -1,13 +1,12 @@
 'use client';
 
-import { demoEvents } from '@/lib/demo-data';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, ChevronDown, MoreHorizontal } from 'lucide-react';
 
-type EventStatus = 'on-sale' | 'sold-out' | 'draft' | 'completed' | 'cancelled';
-type EventCategory = 'music' | 'arts' | 'sport' | 'tech' | 'food-wine' | 'wellness' | 'adventure';
+type EventStatus = 'on-sale' | 'sold-out' | 'draft' | 'completed' | 'cancelled' | 'active';
+type EventCategory = 'music' | 'arts' | 'sport' | 'tech' | 'food-wine' | 'wellness' | 'adventure' | 'general';
 
 const statusColors: Record<EventStatus, string> = {
   'on-sale': 'bg-emerald-100 text-emerald-700',
@@ -15,9 +14,22 @@ const statusColors: Record<EventStatus, string> = {
   'draft': 'bg-slate-100 text-slate-700',
   'completed': 'bg-blue-100 text-blue-700',
   'cancelled': 'bg-red-100 text-red-700',
+  'active': 'bg-blue-100 text-blue-700',
 };
 
+interface TemplateEvent {
+  id: string;
+  name: string;
+  category: string;
+  status: EventStatus;
+  createdAt: string;
+  organizerId: string;
+}
+
 export default function EventsPage() {
+  const [events, setEvents] = useState<TemplateEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -25,8 +37,24 @@ export default function EventsPage() {
 
   const itemsPerPage = 10;
 
-  // Filter events
-  let filteredEvents = demoEvents.filter((event) => {
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch('/api/events');
+        if (!res.ok) throw new Error('Failed to fetch events');
+        const json = await res.json();
+        setEvents(json.data || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch events');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  let filteredEvents = events.filter((event: any) => {
     const matchesSearch =
       event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.id.toLowerCase().includes(searchTerm.toLowerCase());
@@ -41,20 +69,26 @@ export default function EventsPage() {
     currentPage * itemsPerPage
   );
 
+  if (loading) {
+    return <div className="p-6 text-center text-gray-500">Loading templates from DUAL network...</div>;
+  }
+
   return (
     <div className="space-y-6">
+      {error && <div className="p-4 bg-red-50 text-red-700 rounded-lg">{error}</div>}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Events Management</h1>
-          <p className="text-sm text-gray-600 mt-1">Manage and monitor all ticketing events</p>
+          <h1 className="text-3xl font-bold text-gray-900">DUAL Templates</h1>
+          <p className="text-sm text-gray-600 mt-1">View and manage token templates on the DUAL network</p>
         </div>
         <Link
           href="/admin/events/new"
           className="inline-flex items-center gap-2 px-6 py-3 bg-[#ec5b13] text-white rounded-xl font-medium hover:bg-orange-600 transition-colors shadow-sm"
         >
           <Plus size={18} />
-          Create Event
+          Create Template
         </Link>
       </div>
 
@@ -64,9 +98,9 @@ export default function EventsPage() {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search events..."
+            placeholder="Search templates..."
             value={searchTerm}
-            onChange={(e) => {
+            onChange={(e: any) => {
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
@@ -77,47 +111,38 @@ export default function EventsPage() {
         <div className="relative">
           <select
             value={categoryFilter}
-            onChange={(e) => {
+            onChange={(e: any) => {
               setCategoryFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#ec5b13] appearance-none pr-10"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ec5b13] appearance-none pr-10 bg-white"
           >
             <option value="all">All Categories</option>
+            <option value="general">General</option>
             <option value="music">Music</option>
-            <option value="arts">Arts</option>
             <option value="sport">Sport</option>
+            <option value="arts">Arts</option>
             <option value="tech">Tech</option>
-            <option value="food-wine">Food & Wine</option>
-            <option value="wellness">Wellness</option>
-            <option value="adventure">Adventure</option>
           </select>
-          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
 
         <div className="relative">
           <select
             value={statusFilter}
-            onChange={(e) => {
+            onChange={(e: any) => {
               setStatusFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#ec5b13] appearance-none pr-10"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ec5b13] appearance-none pr-10 bg-white"
           >
             <option value="all">All Status</option>
+            <option value="active">Active</option>
             <option value="on-sale">On Sale</option>
             <option value="sold-out">Sold Out</option>
-            <option value="draft">Draft</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
           </select>
-          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
-      </div>
-
-      {/* Results count */}
-      <div className="text-sm text-gray-600">
-        Showing {paginatedEvents.length} of {filteredEvents.length} events
       </div>
 
       {/* Table */}
@@ -125,127 +150,72 @@ export default function EventsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Event Name</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Venue</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Capacity</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Sold</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Template</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Created</th>
+              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
-            {paginatedEvents.map((event) => {
-              const totalCapacity = event.tiers.reduce((sum, t) => sum + t.capacity, 0);
-              const totalSold = event.tiers.reduce((sum, t) => sum + t.sold, 0);
-              const sellPercentage = totalCapacity > 0 ? (totalSold / totalCapacity) * 100 : 0;
-
-              return (
-                <tr key={event.id} className="hover:bg-slate-50 transition-colors">
+          <tbody>
+            {paginatedEvents.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  No templates found
+                </td>
+              </tr>
+            ) : (
+              paginatedEvents.map((event: any) => (
+                <tr key={event.id} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
-                    <Link
-                      href={`/admin/events/${event.id}`}
-                      className="text-sm font-medium text-[#ec5b13] hover:text-orange-700"
-                    >
-                      <div>{event.name}</div>
-                      <div className="text-xs text-gray-500 font-mono">{event.id}</div>
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm text-gray-900 capitalize">{event.category}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm text-gray-900">{formatDate(event.date.start)}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm text-gray-900">{event.venue.name}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className="text-sm text-gray-900">{totalCapacity.toLocaleString()}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <span
-                        className={`text-sm font-medium ${
-                          sellPercentage >= 90
-                            ? 'text-red-600'
-                            : sellPercentage >= 70
-                            ? 'text-amber-600'
-                            : 'text-gray-900'
-                        }`}
-                      >
-                        {totalSold.toLocaleString()}
-                      </span>
+                    <div>
+                      <p className="font-medium text-gray-900">{event.name}</p>
+                      <p className="text-xs text-gray-500 font-mono">{event.id}</p>
                     </div>
                   </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{event.category || 'general'}</td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                        statusColors[event.status as EventStatus]
-                      }`}
-                    >
-                      {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${statusColors[event.status as EventStatus] || 'bg-slate-100 text-slate-700'}`}>
+                      {event.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                  <td className="px-6 py-4 text-sm text-gray-600">{formatDate(event.createdAt)}</td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="p-1 hover:bg-slate-200 rounded transition-colors">
                       <MoreHorizontal size={16} className="text-gray-400" />
                     </button>
                   </td>
                 </tr>
-              );
-            })}
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
-          Page {currentPage} of {totalPages || 1}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium disabled:opacity-50"
-          >
-            ← Previous
-          </button>
-          <div className="flex gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum = i + 1;
-              if (totalPages > 5 && currentPage > 3) {
-                pageNum = currentPage - 2 + i;
-              }
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    currentPage === pageNum
-                      ? 'bg-[#ec5b13] text-white'
-                      : 'border border-slate-200 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-            {totalPages > 5 && currentPage < totalPages - 2 && (
-              <span className="px-2 py-2 text-gray-500">...</span>
-            )}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredEvents.length)} of {filteredEvents.length}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
-          <button
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium disabled:opacity-50"
-          >
-            Next →
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }
