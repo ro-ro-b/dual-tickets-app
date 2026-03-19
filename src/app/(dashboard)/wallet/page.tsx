@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { demoTickets, demoEvents } from '@/lib/demo-data';
 import { formatDate, formatCurrency, cn } from '@/lib/utils';
 import type { TicketStatus } from '@/types';
 
@@ -10,6 +9,16 @@ type FilterType = 'today' | 'week' | 'upcoming' | 'past';
 
 export default function MyTicketsPage() {
   const [filter, setFilter] = useState<FilterType>('upcoming');
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/tickets')
+      .then(r => r.json())
+      .then(d => setTickets(d.data || []))
+      .catch(() => setTickets([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const getStatusColor = (status: TicketStatus) => {
     const colors: Record<TicketStatus, string> = {
@@ -57,9 +66,8 @@ export default function MyTicketsPage() {
     }
   };
 
-  const filteredTickets = demoTickets.filter(
-    (ticket) => ticket.ownerWallet === '0x742d35Cc6634C0532925a3b844Bc026e6f7D30f0'
-      && isDateInRange(ticket.ticketData.eventDate)
+  const filteredTickets = tickets.filter(
+    (ticket) => isDateInRange(ticket.ticketData.eventDate)
   );
 
   const filters: { value: FilterType; label: string }[] = [
@@ -110,14 +118,17 @@ export default function MyTicketsPage() {
 
       {/* Tickets grid */}
       <div className="px-4 pt-4">
-        {filteredTickets.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-slate-400">Loading...</p>
+          </div>
+        ) : filteredTickets.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-400">No tickets found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTickets.map((ticket) => {
-            const event = demoEvents.find((e) => e.id === ticket.eventId);
             const isUpcoming = new Date(ticket.ticketData.eventDate) > new Date();
             const isUsed = ticket.ticketData.status === 'used';
             const isTransferred = ticket.ticketData.status === 'transferred';

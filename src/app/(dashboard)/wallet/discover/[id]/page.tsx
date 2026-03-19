@@ -2,15 +2,31 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { demoEvents } from '@/lib/demo-data';
 import { formatDate, formatTime, formatCurrency, tierAvailability } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function EventDetailPage() {
   const { id } = useParams();
-  const event = demoEvents.find((e) => e.id === id);
+  const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/events/${id}`)
+      .then(r => r.json())
+      .then(d => setEvent(d.data || null))
+      .catch(() => setEvent(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="pb-32 bg-slate-950 min-h-screen flex items-center justify-center">
+        <p className="text-slate-400">Loading...</p>
+      </div>
+    );
+  }
 
   if (!event) {
     return (

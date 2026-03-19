@@ -2,12 +2,29 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { demoTickets, demoEvents } from '@/lib/demo-data';
 import { formatDate, formatCurrency, truncateAddress } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 
 export default function TicketDetailPage() {
   const { id } = useParams();
-  const ticket = demoTickets.find((t) => t.id === id);
+  const [ticket, setTicket] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/tickets/${id}`)
+      .then(r => r.json())
+      .then(d => setTicket(d.data || null))
+      .catch(() => setTicket(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="pb-32 bg-slate-950 min-h-screen flex items-center justify-center">
+        <p className="text-slate-400">Loading...</p>
+      </div>
+    );
+  }
 
   if (!ticket) {
     return (
@@ -17,7 +34,6 @@ export default function TicketDetailPage() {
     );
   }
 
-  const event = demoEvents.find((e) => e.id === ticket.eventId);
   const isValid = ticket.ticketData.status === 'valid';
 
   return (

@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { demoEvents } from '@/lib/demo-data';
 import { formatCurrency, cn } from '@/lib/utils';
 import type { EventCategory } from '@/types';
 
@@ -10,6 +9,16 @@ type CategoryType = EventCategory | 'all';
 
 export default function DiscoverPage() {
   const [category, setCategory] = useState<CategoryType>('all');
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/events')
+      .then(r => r.json())
+      .then(d => setEvents(d.data || []))
+      .catch(() => setEvents([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const categories: { value: CategoryType; label: string }[] = [
     { value: 'all', label: 'All' },
@@ -20,7 +29,7 @@ export default function DiscoverPage() {
     { value: 'adventure', label: 'Experiences' },
   ];
 
-  let filtered = [...demoEvents];
+  let filtered = [...events];
   if (category !== 'all') {
     filtered = filtered.filter((e) => e.category === category);
   }
@@ -83,8 +92,13 @@ export default function DiscoverPage() {
 
       {/* Content */}
       <div className="px-4 space-y-6 pt-4">
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-slate-400">Loading...</p>
+          </div>
+        ) : null}
         {/* Featured Events - Horizontal Carousel */}
-        {featured.length > 0 && (
+        {!loading && featured.length > 0 && (
           <div>
             <h2 className="text-white font-black text-lg mb-3">Featured Events</h2>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
@@ -136,7 +150,7 @@ export default function DiscoverPage() {
         )}
 
         {/* Popular Near You - responsive grid */}
-        {popular.length > 0 && (
+        {!loading && popular.length > 0 && (
           <div>
             <h2 className="text-white font-black text-lg mb-3">Popular Near You</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -177,7 +191,7 @@ export default function DiscoverPage() {
         )}
 
         {/* Upcoming Experiences */}
-        {filtered.filter((e) => e.type === 'experience').length > 0 && (
+        {!loading && filtered.filter((e) => e.type === 'experience').length > 0 && (
           <div>
             <h2 className="text-white font-black text-lg mb-3">Upcoming Experiences</h2>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
@@ -216,7 +230,7 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="text-center py-12">
             <p className="text-slate-400">No events found in this category</p>
           </div>
