@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { formatDate, formatCurrency, cn } from '@/lib/utils';
 import type { TicketStatus } from '@/types';
 
-type FilterType = 'today' | 'week' | 'upcoming' | 'past';
+type FilterType = 'all' | 'today' | 'week' | 'upcoming' | 'past';
 
 export default function MyTicketsPage() {
-  const [filter, setFilter] = useState<FilterType>('upcoming');
+  const [filter, setFilter] = useState<FilterType>('all');
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -71,6 +71,7 @@ export default function MyTicketsPage() {
   );
 
   const filters: { value: FilterType; label: string }[] = [
+    { value: 'all', label: 'All' },
     { value: 'today', label: 'Today' },
     { value: 'week', label: 'This Week' },
     { value: 'upcoming', label: 'Upcoming' },
