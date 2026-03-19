@@ -9,7 +9,7 @@ type EventStatus = 'on-sale' | 'sold-out' | 'draft' | 'completed' | 'cancelled' 
 type EventCategory = 'music' | 'arts' | 'sport' | 'tech' | 'food-wine' | 'wellness' | 'adventure' | 'general';
 
 const statusColors: Record<EventStatus, string> = {
-  'on-sale': 'bg-emerald-100 text-emerald-700',
+  'on-sale': 'bg-gold-50 text-gold-700',
   'sold-out': 'bg-red-100 text-red-700',
   'draft': 'bg-slate-100 text-slate-700',
   'completed': 'bg-blue-100 text-blue-700',

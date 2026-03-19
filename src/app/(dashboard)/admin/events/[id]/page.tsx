@@ -106,7 +106,7 @@ export default function AdminEventDetailPage() {
         <div className="absolute bottom-4 left-6 right-6">
           <div className="flex gap-2 mb-2">
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ec5b13]/10 text-[#ec5b13] uppercase">{event.type}</span>
-            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${event.status === 'on-sale' ? 'bg-emerald-100 text-emerald-700' : event.status === 'sold-out' ? 'bg-red-100 text-red-700' : event.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>{event.status}</span>
+            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${event.status === 'on-sale' ? 'bg-gold-50 text-gold-700' : event.status === 'sold-out' ? 'bg-red-100 text-red-700' : event.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>{event.status}</span>
           </div>
           <h1 className="text-xl font-bold text-white">{event.name}</h1>
         </div>
@@ -124,7 +124,7 @@ export default function AdminEventDetailPage() {
         </div>
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <div className="text-center">
-            <DollarSign size={18} className="mx-auto text-emerald-600 mb-3" />
+            <DollarSign size={18} className="mx-auto text-gold-600 mb-3" />
             <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Revenue</p>
             <p className="text-lg font-bold text-gray-900">{formatCurrency(revenue)}</p>
           </div>
@@ -214,7 +214,7 @@ export default function AdminEventDetailPage() {
                       <td className="py-3 font-mono text-xs text-gray-600">{truncateAddress(ticket.ownerWallet)}</td>
                       <td className="py-3">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          ticket.ticketData.status === 'valid' ? 'bg-emerald-100 text-emerald-700' :
+                          ticket.ticketData.status === 'valid' ? 'bg-gold-50 text-gold-700' :
                           ticket.ticketData.status === 'used' ? 'bg-blue-100 text-blue-700' :
                           ticket.ticketData.status === 'listed' ? 'bg-amber-100 text-amber-700' :
                           'bg-slate-100 text-slate-700'
@@ -224,7 +224,7 @@ export default function AdminEventDetailPage() {
                       </td>
                       <td className="py-3">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          ticket.onChainStatus === 'anchored' ? 'bg-emerald-100 text-emerald-700' :
+                          ticket.onChainStatus === 'anchored' ? 'bg-gold-50 text-gold-700' :
                           ticket.onChainStatus === 'verified' ? 'bg-blue-100 text-blue-700' :
                           'bg-amber-100 text-amber-700'
                         }`}>

@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
       label: 'Active Templates',
       value: (stats?.activeEvents || 0).toString(),
       change: 'Live',
-      icon: <Activity size={20} className="text-emerald-500" />,
+      icon: <Activity size={20} className="text-gold-500" />,
     },
     {
       label: 'Total Objects',
@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
       label: 'Anchored Objects',
       value: Object.values(stats?.ticketsByStatus || {}).reduce((a: number, b: any) => a + b, 0).toString(),
       change: 'Live',
-      changeColor: 'text-emerald-600',
+      changeColor: 'text-gold-600',
       icon: <Layers size={20} className="text-red-500" />,
     },
   ];
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
           >
             <div className="flex items-start justify-between mb-4">
               <div>{kpi.icon}</div>
-              <span className={`text-xs font-semibold ${(kpi as any).changeColor || 'text-emerald-600'}`}>
+              <span className={`text-xs font-semibold ${(kpi as any).changeColor || 'text-gold-600'}`}>
                 {kpi.change}
               </span>
             </div>
@@ -121,8 +121,8 @@ export default function AdminDashboardPage() {
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Status</span>
-                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gold-50 text-gold-700 text-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold-500" />
                   OPERATIONAL
                 </span>
               </div>

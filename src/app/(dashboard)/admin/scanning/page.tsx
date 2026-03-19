@@ -14,7 +14,7 @@ interface Scan {
 }
 
 const statusConfig = {
-  VALID: { color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2, label: 'Valid' },
+  VALID: { color: 'bg-gold-50 text-gold-700', icon: CheckCircle2, label: 'Valid' },
   VIP: { color: 'bg-amber-100 text-amber-700', icon: Activity, label: 'VIP' },
   ALREADY_USED: { color: 'bg-orange-100 text-orange-700', icon: Clock, label: 'Already Used' },
   INVALID: { color: 'bg-red-100 text-red-700', icon: AlertCircle, label: 'Invalid' },
@@ -65,8 +65,8 @@ export default function ScanningPage() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-gray-900">Live Check-in Monitoring</h1>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold-50 text-gold-700 text-xs font-medium">
+              <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse" />
               {scans.length > 0 ? 'LIVE SYSTEM CONNECTED' : 'WAITING FOR SCANS...'}
             </span>
           </div>

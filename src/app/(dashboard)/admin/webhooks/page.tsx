@@ -47,8 +47,8 @@ export default function WebhooksPage() {
           <p className="text-sm text-gray-600 mt-1">Real-time event streaming and configuration</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold-50 text-gold-700 text-xs font-medium">
+            <span className="w-2 h-2 rounded-full bg-gold-500" />
             {events.length > 0 ? 'Connected' : 'Listening for events...'}
           </span>
           <button className="px-6 py-2.5 bg-[#ec5b13] text-white rounded-xl font-medium hover:bg-orange-600 transition-colors">
@@ -91,19 +91,19 @@ export default function WebhooksPage() {
                 />
               </div>
               <div className="pt-4 space-y-2">
-                <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-gold-50 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <CheckCircle size={16} className="text-emerald-600" />
-                    <span className="text-sm text-emerald-900">Verification</span>
+                    <CheckCircle size={16} className="text-gold-600" />
+                    <span className="text-sm text-gold-900">Verification</span>
                   </div>
-                  <span className="text-xs font-semibold text-emerald-700">Active</span>
+                  <span className="text-xs font-semibold text-gold-700">Active</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-gold-50 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <CheckCircle size={16} className="text-emerald-600" />
-                    <span className="text-sm text-emerald-900">Connection</span>
+                    <CheckCircle size={16} className="text-gold-600" />
+                    <span className="text-sm text-gold-900">Connection</span>
                   </div>
-                  <span className="text-xs font-semibold text-emerald-700">Active</span>
+                  <span className="text-xs font-semibold text-gold-700">Active</span>
                 </div>
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function WebhooksPage() {
             <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-700">
               <div className="w-3 h-3 rounded-full bg-red-500" />
               <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <div className="w-3 h-3 rounded-full bg-emerald-500" />
+              <div className="w-3 h-3 rounded-full bg-gold-500" />
             </div>
 
             {/* Stream content */}
@@ -171,8 +171,8 @@ export default function WebhooksPage() {
                 events.map((log) => (
                   <div key={log.id} className="space-y-1">
                     <div>
-                      <span className="text-emerald-400">{`[${formatDateTime(log.timestamp)}]`}</span>
-                      <span className={log.event.startsWith('TICKET') ? ' text-emerald-300' : ' text-blue-300'}>
+                      <span className="text-gold-400">{`[${formatDateTime(log.timestamp)}]`}</span>
+                      <span className={log.event.startsWith('TICKET') ? ' text-gold-300' : ' text-blue-300'}>
                         {` → ${log.event}`}
                       </span>
                     </div>
