@@ -144,7 +144,7 @@ export default function TicketDetailPage() {
                 className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-purple-600/20 border border-purple-500/30 rounded text-purple-300 text-xs font-semibold hover:bg-purple-600/40 transition-colors"
               >
                 <span className="material-symbols-outlined text-sm">open_in_new</span>
-                View on BLOCKv
+                View on DUAL
               </a>
             )}
           </div>
@@ -176,7 +176,7 @@ export default function TicketDetailPage() {
                   className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-purple-600/20 border border-purple-500/30 rounded text-purple-300 text-xs font-semibold hover:bg-purple-600/40 transition-colors"
                 >
                   <span className="material-symbols-outlined text-sm">open_in_new</span>
-                  View on BLOCKv
+                  View on DUAL
                 </a>
               )}
             </div>
@@ -216,7 +216,7 @@ export default function TicketDetailPage() {
                 className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-purple-600/20 border border-purple-500/30 rounded text-purple-300 text-xs font-semibold hover:bg-purple-600/40 transition-colors"
               >
                 <span className="material-symbols-outlined text-sm">open_in_new</span>
-                View on BLOCKv
+                View on DUAL
               </a>
             )}
           </div>
@@ -260,7 +260,7 @@ export default function TicketDetailPage() {
           <div className="text-sm">
             <p className="text-emerald-300 font-semibold mb-1">Blockchain Verified Asset</p>
             <p className="text-emerald-200/70 text-xs">
-              This token is cryptographically verified and immutably anchored on the DUAL Network via BLOCKv.
+              This token is cryptographically verified and immutably anchored on the DUAL Network via DUAL.
             </p>
           </div>
         </div>

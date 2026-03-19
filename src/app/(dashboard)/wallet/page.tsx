@@ -92,7 +92,7 @@ export default function MyTicketsPage() {
             <div className="text-sm">
               <p className="text-white font-semibold">DUAL Network</p>
               <p className="text-purple-300 text-xs">
-                {tickets.length} Tokens · {anchoredCount} Anchored on BLOCKv
+                {tickets.length} Tokens · {anchoredCount} Anchored on DUAL
               </p>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function MyTicketsPage() {
             rel="noopener noreferrer"
             className="text-purple-400 hover:text-purple-300 transition-colors text-xs font-medium"
           >
-            View on BLOCKv →
+            View on DUAL →
           </a>
         </div>
       </div>
