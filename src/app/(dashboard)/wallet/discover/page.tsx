@@ -72,7 +72,7 @@ export default function DiscoverPage() {
 
           {/* Category pills */}
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {categories.map((cat) => (
+            {categories.map(( cat: any) => (
               <button
                 key={cat.value}
                 onClick={() => setCategory(cat.value)}
@@ -102,7 +102,7 @@ export default function DiscoverPage() {
           <div>
             <h2 className="text-white font-black text-lg mb-3">Featured Events</h2>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {featured.map((event) => {
+              {featured.map(( event: any) => {
                 const availability = event.tiers[0] ?
                   ((event.tiers[0].sold / event.tiers[0].capacity) * 100) : 0;
                 const minPrice = Math.min(...event.tiers.map((t: any) => t.price));
@@ -154,7 +154,7 @@ export default function DiscoverPage() {
           <div>
             <h2 className="text-white font-black text-lg mb-3">Popular Near You</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {popular.map((event) => {
+              {popular.map(( event: any) => {
                 const minPrice = Math.min(...event.tiers.map((t: any) => t.price));
 
                 return (
@@ -198,7 +198,7 @@ export default function DiscoverPage() {
               {filtered
                 .filter((e: any) => e.type === 'experience')
                 .slice(0, 4)
-                .map((event) => {
+                .map(( event: any) => {
                   const minPrice = Math.min(...event.tiers.map((t: any) => t.price));
 
                   return (

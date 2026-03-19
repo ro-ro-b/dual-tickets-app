@@ -30,7 +30,7 @@ export default function WalletLayout({ children }: { children: ReactNode }) {
         <div className="md:hidden flex items-center justify-between relative h-20 px-2">
           {/* Left items (0-1) */}
           <div className="flex gap-2 flex-1">
-            {navItems.slice(0, 2).map((item) => (
+            {navItems.slice(0, 2).map(( item: any) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -63,7 +63,7 @@ export default function WalletLayout({ children }: { children: ReactNode }) {
 
           {/* Right items (3-4) */}
           <div className="flex gap-2 flex-1 justify-end">
-            {navItems.slice(3).map((item) => (
+            {navItems.slice(3).map(( item: any) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -84,7 +84,7 @@ export default function WalletLayout({ children }: { children: ReactNode }) {
 
         {/* Desktop sidebar nav */}
         <div className="hidden md:flex md:flex-col md:flex-1 md:items-center md:gap-2 md:py-4">
-          {navItems.map((item) => (
+          {navItems.map(( item: any) => (
             <Link
               key={item.href}
               href={item.href}

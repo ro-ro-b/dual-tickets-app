@@ -145,7 +145,7 @@ export default function EventDetailPage() {
         <div>
           <h2 className="text-white font-black text-lg mb-3">Choose Your Tier</h2>
           <div className="space-y-2">
-            {event.tiers.map((tier) => {
+            {event.tiers.map(( tier: any) => {
               const avail = tierAvailability(tier.sold, tier.capacity);
               const isSoldOut = tier.sold >= tier.capacity;
               const isSelected = selectedTier === tier.id;
@@ -194,7 +194,7 @@ export default function EventDetailPage() {
                   {/* Perks */}
                   {tier.perks.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
-                      {tier.perks.slice(0, 2).map((perk) => (
+                      {tier.perks.slice(0, 2).map(( perk: any) => (
                         <span key={perk} className="text-[10px] text-emerald-400 bg-emerald-600/20 px-2 py-0.5 rounded">
                           {perk}
                         </span>

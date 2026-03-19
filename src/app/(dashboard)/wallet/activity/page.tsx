@@ -131,7 +131,7 @@ export default function ActivityPage() {
             <p className="text-slate-400">No transfers yet</p>
           </div>
         ) : (
-          filtered.map((transfer) => (
+          filtered.map((transfer: any) => (
             <div
               key={transfer.id}
               className="bg-slate-800/30 border border-slate-700 rounded-lg p-4 flex items-center gap-3 hover:bg-slate-800/50 transition-colors"

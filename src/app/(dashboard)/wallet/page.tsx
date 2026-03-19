@@ -67,7 +67,7 @@ export default function MyTicketsPage() {
   };
 
   const filteredTickets = tickets.filter(
-    (ticket) => isDateInRange(ticket.ticketData.eventDate)
+    ( ticket: any) => isDateInRange(ticket.ticketData.eventDate)
   );
 
   const filters: { value: FilterType; label: string }[] = [
@@ -98,7 +98,7 @@ export default function MyTicketsPage() {
 
           {/* Filter pills */}
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            {filters.map((f) => (
+            {filters.map(( f: any) => (
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
@@ -128,7 +128,7 @@ export default function MyTicketsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTickets.map((ticket) => {
+            {filteredTickets.map(( ticket: any) => {
             const isUpcoming = new Date(ticket.ticketData.eventDate) > new Date();
             const isUsed = ticket.ticketData.status === 'used';
             const isTransferred = ticket.ticketData.status === 'transferred';
