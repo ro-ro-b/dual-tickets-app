@@ -31,13 +31,13 @@ export default function DiscoverPage() {
 
   let filtered = [...events];
   if (category !== 'all') {
-    filtered = filtered.filter((e) => e.category === category);
+    filtered = filtered.filter((e: any) => e.category === category);
   }
 
   // Separate into featured and popular
-  const featured = filtered.filter((e) => e.status === 'on-sale').slice(0, 5);
+  const featured = filtered.filter((e: any) => e.status === 'on-sale').slice(0, 5);
   const popular = filtered
-    .filter((e) => e.status === 'on-sale')
+    .filter((e: any) => e.status === 'on-sale')
     .sort((a, b) => {
       const aAvailable = a.tiers[0]?.sold || 0;
       const bAvailable = b.tiers[0]?.sold || 0;
@@ -105,7 +105,7 @@ export default function DiscoverPage() {
               {featured.map((event) => {
                 const availability = event.tiers[0] ?
                   ((event.tiers[0].sold / event.tiers[0].capacity) * 100) : 0;
-                const minPrice = Math.min(...event.tiers.map((t) => t.price));
+                const minPrice = Math.min(...event.tiers.map((t: any) => t.price));
 
                 return (
                   <Link
@@ -155,7 +155,7 @@ export default function DiscoverPage() {
             <h2 className="text-white font-black text-lg mb-3">Popular Near You</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {popular.map((event) => {
-                const minPrice = Math.min(...event.tiers.map((t) => t.price));
+                const minPrice = Math.min(...event.tiers.map((t: any) => t.price));
 
                 return (
                   <Link
@@ -191,15 +191,15 @@ export default function DiscoverPage() {
         )}
 
         {/* Upcoming Experiences */}
-        {!loading && filtered.filter((e) => e.type === 'experience').length > 0 && (
+        {!loading && filtered.filter((e: any) => e.type === 'experience').length > 0 && (
           <div>
             <h2 className="text-white font-black text-lg mb-3">Upcoming Experiences</h2>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {filtered
-                .filter((e) => e.type === 'experience')
+                .filter((e: any) => e.type === 'experience')
                 .slice(0, 4)
                 .map((event) => {
-                  const minPrice = Math.min(...event.tiers.map((t) => t.price));
+                  const minPrice = Math.min(...event.tiers.map((t: any) => t.price));
 
                   return (
                     <Link

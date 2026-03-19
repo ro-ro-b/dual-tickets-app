@@ -36,7 +36,7 @@ export default function EventDetailPage() {
     );
   }
 
-  const selectedTierData = event.tiers.find((t) => t.id === selectedTier);
+  const selectedTierData = event.tiers.find((t: any) => t.id === selectedTier);
   const totalPrice = selectedTierData ? selectedTierData.price * quantity : 0;
 
   return (
@@ -104,7 +104,7 @@ export default function EventDetailPage() {
         {/* Price and availability pills */}
         <div className="flex gap-2 flex-wrap">
           <div className="px-3 py-1 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-semibold">
-            FROM {formatCurrency(Math.min(...event.tiers.map((t) => t.price)))}
+            FROM {formatCurrency(Math.min(...event.tiers.map((t: any) => t.price)))}
           </div>
           {event.status === 'sold-out' ? (
             <div className="px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-300 text-xs font-semibold">
