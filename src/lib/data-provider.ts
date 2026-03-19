@@ -45,6 +45,12 @@ function mapGatewayToTicket(obj: any): any {
     onChainStatus: obj.content_hash && obj.content_hash !== '0x0000000000000000000000000000000000000000' ? ('anchored' as const) : ('pending' as const),
     contentHash: obj.content_hash,
     integrityHash: obj.integrity_hash,
+    explorerLinks: {
+      owner: obj.owner ? `https://explorer.blockv.network/address/${obj.owner}` : null,
+      contentHash: obj.content_hash && obj.content_hash !== '0x0000000000000000000000000000000000000000000000000000000000000000' ? `https://explorer.blockv.network/tx/${obj.content_hash}` : null,
+      integrityHash: obj.integrity_hash && obj.integrity_hash !== '0x0000000000000000000000000000000000000000000000000000000000000000' ? `https://explorer.blockv.network/tx/${obj.integrity_hash}` : null,
+      org: obj.org_id ? `https://explorer.blockv.network/address/0xed75538AeDD6E45FfadF30B9EEC68A3959654bF9` : null,
+    },
   };
 }
 

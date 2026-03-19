@@ -226,6 +226,30 @@ export default function MyTicketsPage() {
                         Sent to @{ticket.ownerWallet.slice(-4)} on {formatDate(ticket.ticketData.transferHistory[0]?.timestamp || ticket.updatedAt)}
                       </div>
                     )}
+
+                    {/* Blockchain Verification */}
+                    {ticket.explorerLinks && (
+                      <div className="mt-2 pt-2 border-t border-slate-100 flex flex-wrap gap-2">
+                        {ticket.explorerLinks.owner && (
+                          <a href={ticket.explorerLinks.owner} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                            <span className="inline-block w-2 h-2 bg-green-400 rounded-full"></span>
+                            Owner
+                          </a>
+                        )}
+                        {ticket.explorerLinks.contentHash && (
+                          <a href={ticket.explorerLinks.contentHash} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                            <span className="inline-block w-2 h-2 bg-green-400 rounded-full"></span>
+                            Content Hash
+                          </a>
+                        )}
+                        {ticket.explorerLinks.integrityHash && (
+                          <a href={ticket.explorerLinks.integrityHash} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                            <span className="inline-block w-2 h-2 bg-green-400 rounded-full"></span>
+                            Integrity
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Link>

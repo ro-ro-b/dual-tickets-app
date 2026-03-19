@@ -177,6 +177,51 @@ export default function TicketDetailPage() {
             </p>
           </div>
         </div>
+
+        {/* Blockscout Explorer Links */}
+        {ticket.explorerLinks && (
+          <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-4">
+            <h3 className="text-white font-semibold mb-3 text-sm flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">link</span>
+              View on Blockscout
+            </h3>
+            <div className="space-y-2">
+              {ticket.explorerLinks.owner && (
+                <a
+                  href={ticket.explorerLinks.owner}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-3 bg-slate-700/30 border border-slate-600/30 rounded hover:bg-slate-700/50 transition-colors"
+                >
+                  <p className="text-xs text-slate-500 mb-1">Owner Address</p>
+                  <p className="text-xs text-blue-400 font-mono break-all">{ticket.ownerWallet}</p>
+                </a>
+              )}
+              {ticket.explorerLinks.contentHash && (
+                <a
+                  href={ticket.explorerLinks.contentHash}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-3 bg-slate-700/30 border border-slate-600/30 rounded hover:bg-slate-700/50 transition-colors"
+                >
+                  <p className="text-xs text-slate-500 mb-1">Content Hash</p>
+                  <p className="text-xs text-blue-400 font-mono break-all">{ticket.contentHash}</p>
+                </a>
+              )}
+              {ticket.explorerLinks.integrityHash && (
+                <a
+                  href={ticket.explorerLinks.integrityHash}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-3 bg-slate-700/30 border border-slate-600/30 rounded hover:bg-slate-700/50 transition-colors"
+                >
+                  <p className="text-xs text-slate-500 mb-1">Integrity Hash</p>
+                  <p className="text-xs text-blue-400 font-mono break-all">{ticket.integrityHash}</p>
+                </a>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
