@@ -75,9 +75,9 @@ export default function ActivityPage() {
   });
 
   const getStatusColor = (status: string) => {
-    if (status === 'completed') return 'bg-emerald-600/20 border-emerald-500/30 text-emerald-300';
-    if (status === 'pending') return 'bg-yellow-600/20 border-yellow-500/30 text-yellow-300';
-    return 'bg-red-600/20 border-red-500/30 text-red-300';
+    if (status === 'completed') return 'bg-gold-50 border-gold-200 text-gold-700';
+    if (status === 'pending') return 'bg-amber-50 border-amber-200 text-amber-700';
+    return 'bg-red-50 border-red-200 text-red-700';
   };
 
   const getStatusLabel = (status: string) => {
@@ -87,19 +87,19 @@ export default function ActivityPage() {
   };
 
   return (
-    <div className="pb-32 bg-slate-950 min-h-screen">
+    <div className="pb-32 bg-background-light min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 bg-slate-950 border-b border-slate-800 z-40">
+      <div className="sticky top-0 bg-white border-b border-slate-200 z-40">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <Link
               href="/wallet"
-              className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors"
+              className="p-2 -ml-2 text-slate-500 hover:text-primary-consumer transition-colors"
             >
               <span className="material-symbols-outlined">arrow_back</span>
             </Link>
-            <h1 className="text-lg font-black text-white flex-1 text-center">Transfer History</h1>
-            <button className="p-2 -mr-2 text-slate-400 hover:text-white transition-colors">
+            <h1 className="text-lg font-black text-slate-900 flex-1 text-center">Transfer History</h1>
+            <button className="p-2 -mr-2 text-slate-500 hover:text-primary-consumer transition-colors">
               <span className="material-symbols-outlined">search</span>
             </button>
           </div>
@@ -113,8 +113,8 @@ export default function ActivityPage() {
                 className={cn(
                   'px-4 py-1.5 rounded-full text-sm font-medium transition-all capitalize',
                   tab === t
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                    ? 'bg-primary-consumer text-white'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
                 )}
               >
                 {t}
@@ -128,21 +128,21 @@ export default function ActivityPage() {
       <div className="px-4 space-y-3 pt-4">
         {filtered.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-400">No transfers yet</p>
+            <p className="text-slate-500">No transfers yet</p>
           </div>
         ) : (
           filtered.map((transfer: any) => (
             <div
               key={transfer.id}
-              className="bg-slate-800/30 border border-slate-700 rounded-lg p-4 flex items-center gap-3 hover:bg-slate-800/50 transition-colors"
+              className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3 hover:shadow-md transition-shadow"
             >
               {/* Icon circle */}
               <div
                 className={cn(
-                  'w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0',
+                  'w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 border',
                   transfer.type === 'sent'
-                    ? 'bg-red-600/20 border border-red-500/30'
-                    : 'bg-emerald-600/20 border border-emerald-500/30'
+                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                    : 'bg-wine-50 border-wine-200 text-wine-700'
                 )}
               >
                 <span className="material-symbols-outlined text-lg">
@@ -152,8 +152,8 @@ export default function ActivityPage() {
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-sm mb-1">{transfer.eventName}</p>
-                <p className="text-slate-400 text-xs mb-1">
+                <p className="text-slate-900 font-bold text-sm mb-1">{transfer.eventName}</p>
+                <p className="text-slate-600 text-xs mb-1">
                   {transfer.type === 'sent' ? 'Sent to ' : 'Received from '}
                   <span className="font-semibold">@{transfer.recipient}</span>
                 </p>

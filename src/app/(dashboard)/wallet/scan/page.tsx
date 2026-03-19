@@ -138,16 +138,16 @@ export default function ScanPage() {
 
   if (scanState === 'result' && result) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6 pt-6 pb-20">
         {/* Result Card */}
-        <div className={`rounded-2xl p-8 text-center ${result.status === 'valid' ? 'bg-green-50' : result.status === 'used' ? 'bg-amber-50' : 'bg-red-50'}`}>
-          <div className={`text-6xl font-bold mb-4 ${result.status === 'valid' ? 'text-green-600' : result.status === 'used' ? 'text-amber-600' : 'text-red-600'}`}>
+        <div className={`rounded-2xl p-8 text-center ${result.status === 'valid' ? 'bg-gold-50' : result.status === 'used' ? 'bg-amber-50' : 'bg-red-50'}`}>
+          <div className={`text-6xl font-bold mb-4 ${result.status === 'valid' ? 'text-gold-700' : result.status === 'used' ? 'text-amber-700' : 'text-red-700'}`}>
             {result.status === 'valid' ? '✓' : result.status === 'used' ? '⊕' : '✗'}
           </div>
-          <h2 className={`text-3xl font-bold mb-2 ${result.status === 'valid' ? 'text-green-900' : result.status === 'used' ? 'text-amber-900' : 'text-red-900'}`}>
+          <h2 className={`text-3xl font-bold mb-2 ${result.status === 'valid' ? 'text-gold-900' : result.status === 'used' ? 'text-amber-900' : 'text-red-900'}`}>
             {result.status === 'valid' ? 'Valid Ticket' : result.status === 'used' ? 'Already Used' : 'Invalid Ticket'}
           </h2>
-          <p className={`text-sm ${result.status === 'valid' ? 'text-green-700' : result.status === 'used' ? 'text-amber-700' : 'text-red-700'}`}>
+          <p className={`text-sm ${result.status === 'valid' ? 'text-gold-800' : result.status === 'used' ? 'text-amber-800' : 'text-red-800'}`}>
             {result.status === 'valid'
               ? 'This ticket is valid and ready for entry.'
               : result.status === 'used'
@@ -158,40 +158,40 @@ export default function ScanPage() {
 
         {/* Ticket Details */}
         {result.ticket && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Ticket Name</p>
-              <p className="font-semibold text-gray-900">{result.ticket.ticketData?.eventName || 'DUAL Token'}</p>
+              <p className="text-xs text-slate-500 uppercase tracking-wide">Ticket Name</p>
+              <p className="font-semibold text-slate-900">{result.ticket.ticketData?.eventName || 'DUAL Token'}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Object ID</p>
-                <p className="font-mono text-sm text-gray-700">{truncateAddress(result.ticket.id)}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wide">Object ID</p>
+                <p className="font-mono text-sm text-slate-600">{truncateAddress(result.ticket.id)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Template ID</p>
-                <p className="font-mono text-sm text-gray-700">{truncateAddress(result.ticket.templateId)}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wide">Template ID</p>
+                <p className="font-mono text-sm text-slate-600">{truncateAddress(result.ticket.templateId)}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Verification Details */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <h3 className="font-semibold text-gray-900">On-Chain Verification</h3>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+          <h3 className="font-semibold text-slate-900">On-Chain Verification</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Verified At</p>
-              <p className="text-sm text-gray-700">{formatDate(result.verifiedAt)}</p>
+              <p className="text-xs text-slate-500 uppercase tracking-wide">Verified At</p>
+              <p className="text-sm text-slate-600">{formatDate(result.verifiedAt)}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Block Confirmations</p>
-              <p className="text-sm font-mono text-gray-700">{result.blockConfirmations}</p>
+              <p className="text-xs text-slate-500 uppercase tracking-wide">Block Confirmations</p>
+              <p className="text-sm font-mono text-slate-600">{result.blockConfirmations}</p>
             </div>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Chain Hash</p>
-            <p className="text-xs font-mono text-gray-600 break-all">{result.chainHash}</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Chain Hash</p>
+            <p className="text-xs font-mono text-slate-500 break-all">{result.chainHash}</p>
           </div>
         </div>
 
@@ -199,13 +199,13 @@ export default function ScanPage() {
         <div className="flex gap-3">
           <button
             onClick={resetScan}
-            className="flex-1 px-6 py-3 bg-[#ec5b13] text-white rounded-xl font-medium hover:bg-orange-600 transition-colors"
+            className="flex-1 px-6 py-3 wine-gradient text-white rounded-xl font-medium hover:shadow-lg transition-all"
           >
             Scan Next Ticket
           </button>
           <Link
             href="/wallet"
-            className="flex-1 px-6 py-3 bg-slate-100 text-gray-900 rounded-xl font-medium hover:bg-slate-200 transition-colors text-center"
+            className="flex-1 px-6 py-3 bg-gold-50 text-gold-700 rounded-xl font-medium hover:bg-gold-100 transition-colors text-center"
           >
             Back to Wallet
           </Link>
@@ -215,10 +215,11 @@ export default function ScanPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900">Ticket Scanner</h1>
-        <p className="text-sm text-gray-600 mt-1">Scan QR codes to verify tickets on the DUAL network</p>
+    <div className="max-w-2xl mx-auto space-y-6 pt-6 pb-20">
+      {/* Header Banner */}
+      <div className="wine-gradient rounded-2xl px-6 py-8 text-white">
+        <h1 className="text-3xl font-bold mb-2">Ticket Scanner</h1>
+        <p className="text-sm text-white/80">Scan QR codes to verify tickets on the DUAL network</p>
       </div>
 
       {cameraError && (
@@ -227,20 +228,20 @@ export default function ScanPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border-2 border-dashed border-slate-300 overflow-hidden">
+      <div className="bg-white rounded-2xl border-2 border-dashed border-slate-300 overflow-hidden shadow-sm">
         <div
           ref={videoContainerRef}
           id="reader"
           style={{ width: '100%', height: 400 }}
-          className="flex items-center justify-center bg-slate-100"
+          className="flex items-center justify-center bg-slate-50"
         >
-          <p className="text-gray-500 text-center">
+          <p className="text-slate-500 text-center">
             {cameraError ? 'Camera access denied' : 'Initializing camera...'}
           </p>
         </div>
       </div>
 
-      <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
+      <div className="bg-blue-50 rounded-2xl border border-blue-200 p-4">
         <p className="text-sm text-blue-900">
           Point your camera at a QR code to scan a ticket. The ticket will be verified against the DUAL network blockchain.
         </p>
@@ -248,7 +249,7 @@ export default function ScanPage() {
 
       <Link
         href="/wallet"
-        className="block px-6 py-3 bg-slate-100 text-gray-900 rounded-xl font-medium hover:bg-slate-200 transition-colors text-center"
+        className="block px-6 py-3 bg-slate-100 text-slate-900 rounded-xl font-medium hover:bg-slate-200 transition-colors text-center"
       >
         Cancel
       </Link>

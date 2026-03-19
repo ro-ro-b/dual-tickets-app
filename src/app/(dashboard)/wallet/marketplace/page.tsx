@@ -32,35 +32,35 @@ export default function MarketplacePage() {
   }, []);
 
   if (loading) {
-    return <div className="p-6 text-center text-gray-500">Loading marketplace listings from DUAL network...</div>;
+    return <div className="p-6 text-center text-slate-500">Loading marketplace listings from DUAL network...</div>;
   }
 
   return (
     <div className="space-y-6">
-      {error && <div className="p-4 bg-red-50 text-red-700 rounded-lg">{error}</div>}
+      {error && <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">{error}</div>}
 
       {/* Info banner */}
-      <Card className="bg-brand-50 border-brand-200">
+      <Card className="bg-gold-50 border-gold-200">
         <CardContent className="flex items-center gap-3">
-          <ShieldCheck size={20} className="text-brand-600 flex-shrink-0" />
+          <ShieldCheck size={20} className="text-gold-700 flex-shrink-0" />
           <div>
-            <p className="text-sm font-medium text-brand-900">DUAL-Protected Marketplace</p>
-            <p className="text-xs text-brand-700">All resale objects are verified on-chain. Resale prices are capped by the organiser to prevent scalping.</p>
+            <p className="text-sm font-medium text-gold-900">DUAL-Protected Marketplace</p>
+            <p className="text-xs text-gold-800">All resale objects are verified on-chain. Resale prices are capped by the organiser to prevent scalping.</p>
           </div>
         </CardContent>
       </Card>
 
       {listings.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">No objects currently listed for resale on the DUAL network</p>
+          <p className="text-slate-500">No objects currently listed for resale on the DUAL network</p>
         </div>
       ) : (
         <div className="space-y-4">
           {listings.map((listing: any) => (
-            <Card key={listing.id} hover>
+            <Card key={listing.id} hover className="bg-white border border-slate-100 rounded-2xl">
               <CardContent className="flex flex-col md:flex-row gap-4">
                 {/* Image */}
-                <div className="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+                <div className="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
                   {listing.faces && listing.faces[0]?.url ? (
                     <img
                       src={listing.faces[0].url}
@@ -68,7 +68,7 @@ export default function MarketplacePage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <div className="w-full h-full flex items-center justify-center text-slate-400">
                       No image
                     </div>
                   )}
@@ -84,10 +84,10 @@ export default function MarketplacePage() {
                       </Badge>
                     )}
                   </div>
-                  <h3 className="font-semibold text-gray-900">{listing.ticketData?.eventName || listing.name || 'DUAL Object'}</h3>
-                  <p className="text-sm text-brand-600 font-medium">{listing.tierName || 'Token'}</p>
+                  <h3 className="font-semibold text-slate-900">{listing.ticketData?.eventName || listing.name || 'DUAL Object'}</h3>
+                  <p className="text-sm text-primary-consumer font-medium">{listing.tierName || 'Token'}</p>
 
-                  <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500">
+                  <div className="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
                     {listing.ticketData?.eventDate && (
                       <span className="flex items-center gap-1"><Calendar size={12} /> {formatDate(listing.ticketData.eventDate)}</span>
                     )}
@@ -100,7 +100,7 @@ export default function MarketplacePage() {
                   </div>
 
                   {listing.event?.resaleMaxMarkup && (
-                    <p className="text-[10px] text-gray-400 mt-1">
+                    <p className="text-[10px] text-slate-400 mt-1">
                       Max resale: {formatCurrency((listing.ticketData?.purchasePrice || 0) * listing.event.resaleMaxMarkup)} ({((listing.event.resaleMaxMarkup - 1) * 100).toFixed(0)}% cap)
                     </p>
                   )}
@@ -110,11 +110,11 @@ export default function MarketplacePage() {
                 <div className="flex flex-col md:items-end justify-between">
                   <div className="text-right mb-3 md:mb-0">
                     {listing.ticketData?.purchasePrice > 0 && (
-                      <p className="text-xs text-gray-500 line-through">
+                      <p className="text-xs text-slate-500 line-through">
                         {formatCurrency(listing.ticketData.purchasePrice)}
                       </p>
                     )}
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-primary-consumer">
                       {formatCurrency(listing.ticketData?.currentPrice || 0)}
                     </p>
                   </div>

@@ -24,7 +24,12 @@
 }
 
 @layer components {
-  /* Consumer ticket card tear line */
+  .wine-gradient {
+    background: linear-gradient(135deg, #791b3a 0%, #912448 50%, #4d0d22 100%);
+  }
+  .gold-gradient {
+    background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+  }
   .dotted-divider {
     border-top: 2px dashed #e2e8f0;
     position: relative;
@@ -36,7 +41,7 @@
     top: 50%;
     width: 20px;
     height: 20px;
-    background-color: #0f172a;
+    background-color: #faf7f3;
     border-radius: 50%;
     transform: translateY(-50%);
   }
@@ -46,19 +51,10 @@
   .dotted-divider::after {
     right: -10px;
   }
-
-  /* Terminal/webhook code view */
   .terminal-bg {
     background-color: #0f172a;
   }
-
-  /* Glow dot for live indicators */
   .glow-dot {
     box-shadow: 0 0 8px currentColor;
-  }
-
-  /* Gold gradient for premium CTAs */
-  .gold-gradient {
-    background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
   }
 }

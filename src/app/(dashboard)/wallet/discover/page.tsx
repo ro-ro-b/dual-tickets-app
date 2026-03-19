@@ -46,27 +46,27 @@ export default function DiscoverPage() {
     .slice(0, 6);
 
   return (
-    <div className="pb-32 bg-slate-950 min-h-screen">
+    <div className="pb-32 bg-background-light min-h-screen">
       {/* Header with location and search */}
-      <div className="sticky top-0 bg-slate-950 border-b border-slate-800 z-40">
+      <div className="sticky top-0 wine-gradient z-40">
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 text-slate-300">
+            <div className="flex items-center gap-2 text-white">
               <span className="material-symbols-outlined text-xl">location_on</span>
               <span className="font-semibold">Sydney, AU</span>
             </div>
-            <button className="text-slate-400 hover:text-white transition-colors">
+            <button className="text-white hover:text-white/80 transition-colors">
               <span className="material-symbols-outlined">tune</span>
             </button>
           </div>
 
           {/* Search bar */}
-          <div className="flex items-center gap-2 bg-slate-800/50 rounded-lg px-3 py-2 mb-3">
-            <span className="material-symbols-outlined text-slate-500 text-lg">search</span>
+          <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 mb-3 backdrop-blur-sm">
+            <span className="material-symbols-outlined text-white/60 text-lg">search</span>
             <input
               type="text"
               placeholder="Search events..."
-              className="flex-1 bg-transparent text-white placeholder-slate-500 outline-none text-sm"
+              className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-sm"
             />
           </div>
 
@@ -79,8 +79,8 @@ export default function DiscoverPage() {
                 className={cn(
                   'px-3 py-1 rounded-full text-sm whitespace-nowrap font-medium transition-all',
                   category === cat.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                    ? 'bg-primary-consumer text-white'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
                 )}
               >
                 {cat.label}
@@ -94,13 +94,13 @@ export default function DiscoverPage() {
       <div className="px-4 space-y-6 pt-4">
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-slate-400">Loading...</p>
+            <p className="text-slate-500">Loading...</p>
           </div>
         ) : null}
         {/* Featured Events - Horizontal Carousel */}
         {!loading && featured.length > 0 && (
           <div>
-            <h2 className="text-white font-black text-lg mb-3">Featured Events</h2>
+            <h2 className="text-slate-900 font-black text-lg mb-3">Featured Events</h2>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {featured.map(( event: any) => {
                 const availability = event.tiers[0] ?
@@ -113,7 +113,7 @@ export default function DiscoverPage() {
                     href={`/wallet/discover/${event.id}`}
                     className="flex-shrink-0 w-[280px] rounded-2xl overflow-hidden group cursor-pointer"
                   >
-                    <div className="relative h-56 bg-slate-800 overflow-hidden">
+                    <div className="relative h-56 bg-slate-200 overflow-hidden">
                       <img
                         src={event.imageUrl}
                         alt={event.name}
@@ -130,13 +130,13 @@ export default function DiscoverPage() {
                             </span>
                           )}
                           {event.status === 'sold-out' && (
-                            <span className="inline-block bg-slate-800 text-white px-2 py-1 rounded text-xs font-bold">
+                            <span className="inline-block bg-slate-700 text-white px-2 py-1 rounded text-xs font-bold">
                               SOLD OUT
                             </span>
                           )}
                         </div>
                         {event.status === 'on-sale' && (
-                          <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold">
+                          <span className="bg-gold-50 text-gold-700 px-2 py-1 rounded text-xs font-bold border border-gold-200">
                             FROM {formatCurrency(minPrice)}
                           </span>
                         )}
@@ -152,7 +152,7 @@ export default function DiscoverPage() {
         {/* Popular Near You - responsive grid */}
         {!loading && popular.length > 0 && (
           <div>
-            <h2 className="text-white font-black text-lg mb-3">Popular Near You</h2>
+            <h2 className="text-slate-900 font-black text-lg mb-3">Popular Near You</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {popular.map(( event: any) => {
                 const minPrice = Math.min(...event.tiers.map((t: any) => t.price));
@@ -161,9 +161,9 @@ export default function DiscoverPage() {
                   <Link
                     key={event.id}
                     href={`/wallet/discover/${event.id}`}
-                    className="rounded-xl overflow-hidden group"
+                    className="rounded-2xl overflow-hidden group"
                   >
-                    <div className="relative aspect-[3/4] bg-slate-800 overflow-hidden">
+                    <div className="relative aspect-[3/4] bg-slate-200 overflow-hidden">
                       <img
                         src={event.imageUrl}
                         alt={event.name}
@@ -177,7 +177,7 @@ export default function DiscoverPage() {
                           {event.name}
                         </h3>
                         {event.status === 'on-sale' && (
-                          <p className="text-yellow-400 text-xs font-bold">
+                          <p className="text-gold-400 text-xs font-bold">
                             FROM {formatCurrency(minPrice)}
                           </p>
                         )}
@@ -193,7 +193,7 @@ export default function DiscoverPage() {
         {/* Upcoming Experiences */}
         {!loading && filtered.filter((e: any) => e.type === 'experience').length > 0 && (
           <div>
-            <h2 className="text-white font-black text-lg mb-3">Upcoming Experiences</h2>
+            <h2 className="text-slate-900 font-black text-lg mb-3">Upcoming Experiences</h2>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {filtered
                 .filter((e: any) => e.type === 'experience')
@@ -207,7 +207,7 @@ export default function DiscoverPage() {
                       href={`/wallet/discover/${event.id}`}
                       className="flex-shrink-0 w-[240px] rounded-lg overflow-hidden group"
                     >
-                      <div className="relative h-32 bg-slate-800">
+                      <div className="relative h-32 bg-slate-200">
                         <img
                           src={event.imageUrl}
                           alt={event.name}
@@ -232,7 +232,7 @@ export default function DiscoverPage() {
 
         {!loading && filtered.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-slate-400">No events found in this category</p>
+            <p className="text-slate-500">No events found in this category</p>
           </div>
         )}
       </div>
