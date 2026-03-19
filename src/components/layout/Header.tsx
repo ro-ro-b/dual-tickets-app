@@ -1,13 +1,34 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Bell, Search, User } from 'lucide-react';
 import { truncateAddress } from '@/lib/utils';
 
-const DEMO_WALLET = '0x742d35Cc6634C0532925a3b844Bc026e6f7D30f0';
-
 export function Header() {
   const pathname = usePathname();
+  const [wallet, setWallet] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const response = await fetch('/api/wallet', {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setWallet(data.wallet || null);
+        }
+      } catch (error) {
+        console.error('Failed to fetch wallet:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWallet();
+  }, []);
 
   const getTitle = () => {
     if (pathname === '/wallet') return 'My Tickets';
@@ -23,6 +44,9 @@ export function Header() {
     if (pathname.startsWith('/admin/templates')) return 'Templates';
     return 'DUAL Tickets';
   };
+
+  const displayName = wallet ? 'Connected' : 'Guest';
+  const displayAddress = wallet || 'Not connected';
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
@@ -51,8 +75,10 @@ export function Header() {
             <User size={16} className="text-brand-600" />
           </div>
           <div className="hidden sm:block">
-            <p className="text-sm font-medium text-gray-900">Demo User</p>
-            <p className="text-xs text-gray-500 font-mono">{truncateAddress(DEMO_WALLET)}</p>
+            <p className="text-sm font-medium text-gray-900">{displayName}</p>
+            <p className="text-xs text-gray-500 font-mono">
+              {loading ? 'Loading...' : truncateAddress(displayAddress)}
+            </p>
           </div>
         </div>
       </div>

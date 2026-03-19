@@ -1,7 +1,6 @@
 /**
  * DUAL SDK Client — Tickets App
  * Uses the official @dual/sdk for all DUAL Platform API communication.
- * Falls back to demo data when DUAL_CONFIGURED is not set.
  */
 import { DualClient, DualConfig, DualError } from './dual-sdk';
 
