@@ -88,13 +88,24 @@ class OrganizationsModule {
   async listInvitations(id: string, q?: Record<string, any>) { return this.http.request('GET', '/organizations/' + id + '/invitations', { query: q }); }
   async deleteInvitation(id: string, iid: string, q?: Record<string, any>) { return this.http.request('DELETE', '/organizations/' + id + '/invitations/' + iid, { query: q }); }
   async acceptInvitation(iid: string, b?: any, q?: Record<string, any>) { return this.http.request('POST', '/organizations/invitations/' + iid + '/accept', { body: b, query: q }); }
+  async switchOrganization(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/organizations/switch', { body: b, query: q }); }
+}
+
+class AuthModule {
+  constructor(private http: HttpClient) {}
+  async sendOtp(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/auth/otp', { body: b, query: q }); }
+  async login(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/auth/login', { body: b, query: q }); }
+  async verify(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/auth/verify', { body: b, query: q }); }
+  async refreshToken(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/auth/refresh-token', { body: b, query: q }); }
 }
 
 class EbusModule {
   constructor(private http: HttpClient) {}
-  async executeAction(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/ebus/actions', { body: b, query: q }); }
-  async listActions(q?: Record<string, any>) { return this.http.request('GET', '/ebus/actions', { query: q }); }
-  async getAction(id: string, q?: Record<string, any>) { return this.http.request('GET', '/ebus/actions/' + id, { query: q }); }
+  async execute(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/ebus/execute', { body: b, query: q }); }
+  async executeAction(b?: any, q?: Record<string, any>) { return this.execute(b, q); }
+  async listActionLogs(q?: Record<string, any>) { return this.http.request('GET', '/ebus/action-logs', { query: q }); }
+  async listActions(q?: Record<string, any>) { return this.listActionLogs(q); }
+  async getAction(id: string, q?: Record<string, any>) { return this.http.request('GET', '/ebus/action-logs/' + id, { query: q }); }
   async executeBatchActions(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/ebus/actions/batch', { body: b, query: q }); }
   async listActionTypes(q?: Record<string, any>) { return this.http.request('GET', '/ebus/action-types', { query: q }); }
   async createActionType(b?: any, q?: Record<string, any>) { return this.http.request('POST', '/ebus/action-types', { body: b, query: q }); }
@@ -207,14 +218,14 @@ class IndexerModule {
 
 export class DualClient {
   private http: HttpClient;
-  payments: PaymentsModule; support: SupportModule; organizations: OrganizationsModule;
+  auth: AuthModule; payments: PaymentsModule; support: SupportModule; organizations: OrganizationsModule;
   ebus: EbusModule; wallets: WalletsModule; apikeys: ApiKeysModule;
   templates: TemplatesModule; objects: ObjectsModule; faces: FacesModule;
   storage: StorageModule; notifications: NotificationsModule; webhooks: WebhooksModule;
   sequencer: SequencerModule; indexer: IndexerModule;
   constructor(config?: DualConfig) {
     this.http = new HttpClient(config);
-    this.payments = new PaymentsModule(this.http); this.support = new SupportModule(this.http);
+    this.auth = new AuthModule(this.http); this.payments = new PaymentsModule(this.http); this.support = new SupportModule(this.http);
     this.organizations = new OrganizationsModule(this.http); this.ebus = new EbusModule(this.http);
     this.wallets = new WalletsModule(this.http); this.apikeys = new ApiKeysModule(this.http);
     this.templates = new TemplatesModule(this.http); this.objects = new ObjectsModule(this.http);

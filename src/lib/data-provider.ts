@@ -15,10 +15,11 @@ export interface DataProvider {
 
 /**
  * Maps DUAL gateway object (template instance) to Ticket shape.
- * Uses REAL data from metadata only. No enrichment, no catalog lookups.
+ * Reads from obj.metadata (template defaults) + obj.custom (mint-time overrides).
  */
 function mapGatewayToTicket(obj: any): any {
   const m = obj.metadata || {};
+  const c = obj.custom || {};
   return {
     id: obj.id || '',
     templateId: obj.template_id || '',
@@ -26,17 +27,20 @@ function mapGatewayToTicket(obj: any): any {
     organizationId: obj.org_id || '',
     ownerWallet: obj.owner || '',
     eventId: obj.template_id || '',
-    tierId: obj.template_id || '',
-    tierName: m.category || 'Token',
+    tierId: c.tierId || obj.template_id || '',
+    tierName: c.tierName || m.category || 'Token',
     ticketData: {
-      eventName: m.name || 'DUAL Token',
-      eventDate: obj.when_created || new Date().toISOString(),
-      venue: 'DUAL Network',
-      purchasePrice: 0,
-      currentPrice: 0,
-      status: 'valid' as const,
-      purchasedAt: obj.when_created || new Date().toISOString(),
-      transferHistory: [],
+      eventName: c.eventName || m.name || 'DUAL Token',
+      eventDate: c.eventDate || obj.when_created || new Date().toISOString(),
+      venue: c.venue || 'DUAL Network',
+      section: c.section || '',
+      row: c.row || '',
+      seat: c.seat || '',
+      purchasePrice: c.purchasePrice ? parseFloat(c.purchasePrice) : 0,
+      currentPrice: c.currentPrice ? parseFloat(c.currentPrice) : 0,
+      status: (c.status || 'valid') as 'valid' | 'used' | 'expired' | 'cancelled',
+      purchasedAt: c.purchasedAt || obj.when_created || new Date().toISOString(),
+      transferHistory: c.transferHistory || [],
       qrCode: obj.content_hash || obj.id || '',
     },
     faces: m.image?.url ? [{ id: obj.id + '-face', type: 'image', url: m.image.url }] : [{ id: obj.id + '-face', type: 'image', url: '/placeholder-ticket.svg' }],
