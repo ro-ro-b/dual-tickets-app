@@ -36,7 +36,9 @@ export default function WebhooksPage() {
     fetchEvents();
   }, []);
 
-  const successRate = 99.8;
+  const delivered = events.length;
+  const failed = 0;
+  const successRate = delivered > 0 ? Math.round((delivered / (delivered + failed)) * 1000) / 10 : 0;
 
   return (
     <div className="space-y-6">
@@ -119,11 +121,11 @@ export default function WebhooksPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-600">Delivered</span>
-                <span className="font-medium text-gray-900">9,847</span>
+                <span className="font-medium text-gray-900">{delivered.toLocaleString()}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-600">Failed</span>
-                <span className="font-medium text-gray-900">19</span>
+                <span className="font-medium text-gray-900">{failed}</span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
                 <div className="h-2 rounded-full bg-[#ec5b13]" style={{ width: `${successRate}%` }} />

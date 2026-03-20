@@ -22,7 +22,7 @@ const statusConfig = {
 
 export default function ScanningPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedEvent, setSelectedEvent] = useState('vivid-sydney');
+  const [selectedEvent, setSelectedEvent] = useState('all');
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalCheckIns: 0, capacity: 2500 });
@@ -82,9 +82,7 @@ export default function ScanningPage() {
             onChange={(e) => setSelectedEvent(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#ec5b13]"
           >
-            <option value="vivid-sydney">Vivid Sydney 2026 — Opening Night</option>
-            <option value="tame-impala">Tame Impala — World Tour 2026</option>
-            <option value="nba-finals">NBA Finals 2026 — Game 7</option>
+            <option value="all">All Events</option>
           </select>
         </div>
         <button className="px-6 py-2.5 bg-[#ec5b13] text-white rounded-xl font-medium hover:bg-orange-600 transition-colors flex items-center gap-2 shadow-sm">
@@ -141,18 +139,8 @@ export default function ScanningPage() {
         {/* Live Traffic Trend */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <p className="text-xs text-gray-500 uppercase tracking-wide mb-4">Live Traffic Trend</p>
-          <div className="space-y-3">
-            {[12, 15, 8, 14, 11, 18, 16].map((val, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div className="flex-1 bg-slate-100 rounded h-2 overflow-hidden">
-                  <div
-                    className="h-2 bg-[#ec5b13] rounded"
-                    style={{ width: `${(val / 20) * 100}%` }}
-                  />
-                </div>
-                <span className="text-xs text-gray-600 w-6 text-right">{val}</span>
-              </div>
-            ))}
+          <div className="flex items-center justify-center h-32 text-center">
+            <p className="text-sm text-gray-500">Traffic data will appear during live events</p>
           </div>
         </div>
       </div>

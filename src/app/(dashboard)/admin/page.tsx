@@ -123,16 +123,16 @@ export default function AdminDashboardPage() {
                 <span className="text-gray-600">Status</span>
                 <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gold-50 text-gold-700 text-xs font-medium">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold-500" />
-                  OPERATIONAL
+                  {error ? 'ERROR' : 'OPERATIONAL'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Latency</span>
-                <span className="font-mono text-gray-900">42ms</span>
+                <span className="text-gray-600">Templates</span>
+                <span className="font-mono text-gray-900">{stats?.totalEvents || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Uptime</span>
-                <span className="font-mono text-gray-900">99.99%</span>
+                <span className="text-gray-600">Objects</span>
+                <span className="font-mono text-gray-900">{stats?.totalTicketsSold || 0}</span>
               </div>
             </div>
           </div>
@@ -148,16 +148,16 @@ export default function AdminDashboardPage() {
                 <span className="text-gray-600">Status</span>
                 <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  SYNCED
+                  CONNECTED
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Block Height</span>
-                <span className="font-mono text-gray-900">#18,492,031</span>
+                <span className="text-gray-600">Anchored</span>
+                <span className="font-mono text-gray-900">{(stats as any)?.anchoredCount || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Validator</span>
-                <span className="font-mono text-gray-900">Active</span>
+                <span className="text-gray-600">Explorer</span>
+                <a href="https://32f.blockv.io" target="_blank" rel="noopener noreferrer" className="font-mono text-[#ec5b13] hover:underline text-xs">32f.blockv.io</a>
               </div>
             </div>
           </div>
@@ -177,12 +177,12 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Events/sec</span>
-                <span className="font-mono text-gray-900">1,247</span>
+                <span className="text-gray-600">Endpoint</span>
+                <span className="font-mono text-gray-900 text-xs">/api/webhooks</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Uptime</span>
-                <span className="font-mono text-gray-900">100%</span>
+                <span className="text-gray-600">SSE</span>
+                <span className="font-mono text-gray-900 text-xs">/api/sse</span>
               </div>
             </div>
           </div>
