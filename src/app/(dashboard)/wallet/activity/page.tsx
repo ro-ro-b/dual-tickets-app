@@ -31,8 +31,9 @@ export default function ActivityPage() {
         // Fetch from /api/actions or /api/tickets - adjust endpoint as needed
         const response = await fetch('/api/actions');
         if (!response.ok) throw new Error('Failed to fetch activity');
-        const data = await response.json();
-        setTransfers(data || []);
+        const json = await response.json();
+        const items = json?.data || json || [];
+        setTransfers(Array.isArray(items) ? items : []);
       } catch (err: any) {
         setError(err.message);
         setTransfers([]);

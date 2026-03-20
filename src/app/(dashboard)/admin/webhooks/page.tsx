@@ -23,8 +23,9 @@ export default function WebhooksPage() {
         // Fetch from /api/actions for webhook events
         const response = await fetch('/api/actions');
         if (!response.ok) throw new Error('Failed to fetch events');
-        const data = await response.json();
-        setEvents(data || []);
+        const json = await response.json();
+        const items = json?.data || json || [];
+        setEvents(Array.isArray(items) ? items : []);
       } catch (err: any) {
         console.error(err);
         setEvents([]);

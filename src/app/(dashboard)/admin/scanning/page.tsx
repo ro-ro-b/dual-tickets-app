@@ -34,8 +34,9 @@ export default function ScanningPage() {
         // Fetch from /api/actions for scanning data
         const response = await fetch(`/api/actions?eventId=${selectedEvent}`);
         if (!response.ok) throw new Error('Failed to fetch scans');
-        const data = await response.json();
-        setScans(data || []);
+        const json = await response.json();
+        const items = json?.data || json || [];
+        setScans(Array.isArray(items) ? items : []);
       } catch (err: any) {
         console.error(err);
         setScans([]);
