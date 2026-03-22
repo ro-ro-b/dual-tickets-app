@@ -1,63 +1,79 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getDataProvider } from '@/lib/data-provider';
-import { getAuthenticatedClient } from '@/lib/dual-auth';
+import { NextRequest, NextResponse } from "next/server";
+import { getDataProvider } from "@/lib/data-provider";
+import { getAuthenticatedClient } from "@/lib/dual-auth";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const status = searchParams.get('status');
-  const owner = searchParams.get('owner');
-
+// GET /api/tickets — List all tickets
+export async function GET() {
   try {
     const provider = getDataProvider();
-    let tickets = await provider.listTickets();
-
-    if (status) tickets = tickets.filter((t: any) => t.onChainStatus === status);
-    if (owner) tickets = tickets.filter((t: any) => t.ownerWallet === owner);
-
-    return NextResponse.json({ data: tickets, total: tickets.length });
-  } catch (error: any) {
-    console.error('Failed to fetch tickets:', error);
-    const code = error?.message?.includes('not configured') ? 503 : 500;
-    return NextResponse.json({ error: error?.message || 'Failed to fetch tickets' }, { status: code });
+    const tickets = await provider.listTickets();
+    return NextResponse.json({ tickets });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+// POST /api/tickets — Mint a new ticket
+export async function POST(req: NextRequest) {
   try {
     const client = await getAuthenticatedClient();
     if (!client) {
       return NextResponse.json(
-        { error: 'Not authenticated. Login via admin to mint.' },
+        { error: "Not authenticated. Login first via /api/auth/otp and /api/auth/login." },
         { status: 401 }
       );
     }
 
-    const body = await request.json();
-    const templateId = body.templateId || body.template_id || process.env.DUAL_TEMPLATE_ID || '';
-    const num = body.quantity || body.num || 1;
+    const body = await req.json();
+    const templateId = body.templateId || process.env.DUAL_TICKETS_TEMPLATE_ID || '';
+    const num = body.num || 1;
+    const rawData = body.data || {};
 
-    const result = await client.ebus.execute({
+    if (!templateId) {
+      return NextResponse.json({ error: "Tickets template ID not configured" }, { status: 400 });
+    }
+
+    const mintData: Record<string, any> = {};
+
+    if (rawData.name || rawData.description) {
+      mintData.metadata = {
+        ...(rawData.name ? { name: rawData.name } : {}),
+        ...(rawData.description ? { description: rawData.description } : {}),
+      };
+    }
+
+    const { name: _n, description: _d, ...customFields } = rawData;
+    const custom: Record<string, any> = { ...customFields };
+    if (rawData.name) custom.name = rawData.name;
+    if (rawData.description) custom.description = rawData.description;
+
+    if (Object.keys(custom).length > 0) {
+      mintData.custom = custom;
+    }
+
+    const actionPayload: any = {
       action: {
         mint: {
           template_id: templateId,
           num,
-          ...(body.data ? { data: body.data } : {}),
+          ...(Object.keys(mintData).length > 0 ? { data: mintData } : {}),
         },
       },
-    });
+    };
 
-    const objectIds = result.steps?.[0]?.output?.ids || [];
+    const result = await client.ebus.execute(actionPayload);
 
     return NextResponse.json({
       success: true,
       actionId: result.action_id,
-      objectIds,
-      message: `${objectIds.length} ticket(s) minted on DUAL network`,
+      steps: result.steps,
+      objectIds: result.steps?.[0]?.output?.ids || [],
     }, { status: 201 });
-  } catch (error: any) {
-    console.error('Failed to mint:', error);
-    return NextResponse.json({ error: error?.message || 'Failed to mint ticket' }, { status: 500 });
+  } catch (err: any) {
+    const status = err.status || 500;
+    const message = err.body?.message || err.message || "Ticket mint failed";
+    return NextResponse.json({ error: message }, { status });
   }
 }
